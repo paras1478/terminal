@@ -1,0 +1,86 @@
+import Link from "next/link";
+import type { LiveSession } from "@/lib/api/dashboard";
+
+function StepLine({ step }: { step: LiveSession["steps"][number] }) {
+  if (step.type === "COMMAND" || step.type === "command") {
+    return (
+      <div className="flex gap-2 text-slate-200">
+        <span className="text-emerald-400">$</span>
+        <span>{step.command ?? "(no command)"}</span>
+      </div>
+    );
+  }
+
+  const isError = typeof step.exitStatus === "number" && step.exitStatus !== 0;
+  return (
+    <div className={`pl-4 ${isError ? "text-red-400" : "text-slate-500"}`}>
+      {step.output ?? step.type}
+    </div>
+  );
+}
+
+export function TerminalPanel({ session }: { session: LiveSession | null }) {
+  if (!session) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0a0c12]/90 p-8 text-center backdrop-blur-xl">
+        <p className="font-mono text-xs text-slate-500">agent-session · idle</p>
+        <p className="text-sm text-slate-400">No agent session is currently running.</p>
+        <Link
+          href="/dashboard/sessions"
+          className="mt-2 text-xs font-medium text-emerald-300 hover:text-emerald-200"
+        >
+          View past sessions →
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a0c12]/90 backdrop-blur-xl">
+      <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.03] px-4 py-3">
+        <span className="h-3 w-3 rounded-full bg-red-500/70" />
+        <span className="h-3 w-3 rounded-full bg-yellow-500/70" />
+        <span className="h-3 w-3 rounded-full bg-emerald-500/70" />
+        <span className="ml-3 truncate font-mono text-xs text-slate-500">
+          {session.workspaceName} · {session.goal}
+        </span>
+        <span className="ml-auto flex shrink-0 items-center gap-1.5 text-xs text-emerald-400">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          </span>
+          {session.status.toLowerCase()}
+        </span>
+      </div>
+      <div className="flex-1 space-y-1.5 overflow-y-auto p-5 font-mono text-[13px] leading-relaxed">
+        {session.plan.length > 0 && (
+          <div className="mb-3 space-y-1 border-b border-white/10 pb-3">
+            {session.plan.map((step) => (
+              <div
+                key={step.order}
+                className={`flex items-center gap-2 ${step.done ? "text-emerald-300" : "text-slate-500"}`}
+              >
+                <span>{step.done ? "✓" : "○"}</span>
+                <span>{step.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {session.steps.map((step, i) => (
+          <div key={`${step.order}-${i}`}>
+            <StepLine step={step} />
+          </div>
+        ))}
+        <span className="inline-block h-3.5 w-2 animate-pulse bg-emerald-400 align-middle" />
+      </div>
+      <div className="border-t border-white/10 px-4 py-2 text-right">
+        <Link
+          href={`/dashboard/sessions/${session.id}`}
+          className="text-xs font-medium text-emerald-300 hover:text-emerald-200"
+        >
+          Open full session →
+        </Link>
+      </div>
+    </div>
+  );
+}

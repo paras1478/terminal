@@ -1,0 +1,302 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  email        String   @unique
+  passwordHash String
+  firstName    String?
+  lastName     String?
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  workspaces   Workspace[]
+  sessions     AgentSession[]
+  tasks        Task[]
+  automations  Automation[]
+  logs         CommandLog[]
+  integrations WorkspaceIntegration[]
+  settings     UserSettings?
+
+  @@map("users")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model WaitlistEntry {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  name      String?
+  company   String?
+  useCase   String?
+  createdAt DateTime @default(now())
+
+  @@map("waitlist_entries")
+}
+
+model ContactSubmission {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
+
+  @@map("contact_submissions")
+}
+
+model DemoRequest {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String
+  company       String?
+  teamSize      String?
+  preferredDate DateTime?
+  notes         String?
+  createdAt     DateTime  @default(now())
+
+  @@map("demo_requests")
+}
+
+model NewsletterSubscriber {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  email          String    @unique
+  subscribed     Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  unsubscribedAt DateTime?
+
+  @@map("newsletter_subscribers")
+}
+
+model UserEvent {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventName  String
+  properties Json?
+  sessionId  String?
+  path       String?
+  referrer   String?
+  createdAt  DateTime @default(now())
+
+  @@index([eventName])
+  @@index([createdAt])
+  @@map("user_events")
+}
+
+model HomepageContent {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  section   String   @unique
+  content   Json
+  updatedAt DateTime @updatedAt
+
+  @@map("homepage_content")
+}
+
+model Workspace {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String   @db.ObjectId
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  pathOrRepoUrl  String
+  languageStack  String
+  recentActivity String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sessions     AgentSession[]
+  tasks        Task[]
+  automations  Automation[]
+  logs         CommandLog[]
+  integrations WorkspaceIntegration[]
+
+  @@unique([userId, pathOrRepoUrl])
+  @@index([userId])
+  @@map("workspaces")
+}
+
+enum SessionStatus {
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum AgentType {
+  FRONTEND
+  BACKEND
+  FULL_STACK
+}
+
+model AgentSession {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String        @db.ObjectId
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId    String        @db.ObjectId
+  workspace      Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  goal           String
+  agentType      AgentType?
+  status         SessionStatus @default(RUNNING)
+  plan           Json
+  startedAt      DateTime      @default(now())
+  completedAt    DateTime?
+  commandsCount  Int           @default(0)
+  lastActivityAt DateTime      @default(now())
+
+  steps SessionStep[]
+  logs  CommandLog[]
+
+  @@index([userId])
+  @@index([workspaceId])
+  @@map("agent_sessions")
+}
+
+model SessionStep {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  sessionId  String       @db.ObjectId
+  session    AgentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  order      Int
+  type       String
+  command    String?
+  output     String?
+  exitStatus Int?
+  createdAt  DateTime     @default(now())
+
+  @@index([sessionId])
+  @@map("session_steps")
+}
+
+enum TaskStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Task {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String       @db.ObjectId
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String       @db.ObjectId
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  status      TaskStatus   @default(QUEUED)
+  priority    TaskPriority @default(MEDIUM)
+  tags        String[]     @default([])
+  scheduledAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([userId])
+  @@index([workspaceId])
+  @@map("tasks")
+}
+
+enum AutomationRunStatus {
+  SUCCESS
+  FAILED
+  PENDING
+}
+
+model Automation {
+  id            String              @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String              @db.ObjectId
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId   String              @db.ObjectId
+  workspace     Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name          String
+  description   String
+  schedule      String
+  enabled       Boolean             @default(true)
+  nextRunAt     DateTime
+  lastRunAt     DateTime?
+  lastRunStatus AutomationRunStatus @default(PENDING)
+  taskGoal      String
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([userId])
+  @@index([workspaceId])
+  @@map("automations")
+}
+
+model CommandLog {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String        @db.ObjectId
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId   String        @db.ObjectId
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  sessionId     String?       @db.ObjectId
+  session       AgentSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  command       String
+  exitStatus    Int
+  outputPreview String
+  fullOutput    String
+  createdAt     DateTime      @default(now())
+
+  @@index([userId])
+  @@index([workspaceId])
+  @@index([createdAt])
+  @@map("command_logs")
+}
+
+enum IntegrationStatus {
+  CONNECTED
+  NOT_CONNECTED
+}
+
+model WorkspaceIntegration {
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String            @db.ObjectId
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String?           @db.ObjectId
+  workspace   Workspace?        @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  key         String
+  name        String
+  description String
+  status      IntegrationStatus @default(NOT_CONNECTED)
+  config      Json?
+  connectedAt DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([userId, key])
+  @@index([userId])
+  @@map("workspace_integrations")
+}
+
+model UserSettings {
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId                String   @unique @db.ObjectId
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  confirmationRequired  Boolean  @default(true)
+  allowedPatterns       String[] @default([])
+  dangerousBlocklist    String[] @default([])
+  maxStepsPerTask       Int      @default(25)
+  maxRuntimeSeconds     Int      @default(600)
+  maxConcurrentSessions Int      @default(3)
+  notifyOnCompletion    Boolean  @default(true)
+  notifyOnFailure       Boolean  @default(true)
+  notifyByEmail         Boolean  @default(true)
+  theme                 String   @default("dark")
+  modelSelection        String   @default("claude-sonnet-5")
+  apiKeys               Json     @default("{}")
+  updatedAt             DateTime @updatedAt
+
+  @@map("user_settings")
+}
