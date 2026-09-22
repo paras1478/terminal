@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Editor from "@monaco-editor/react";
-import { getSessionFileContent, saveSessionFileContent } from "@/lib/api/dashboard";
+import {
+  getSessionFileContentClient,
+  saveSessionFileContentClient,
+} from "@/lib/api/dashboard-client";
 
 const LANGUAGE_BY_EXT: Record<string, string> = {
   js: "javascript", jsx: "javascript", mjs: "javascript", cjs: "javascript",
@@ -21,9 +24,11 @@ function languageForPath(path: string): string {
 export function CodeViewer({
   sessionId,
   path,
+  accessToken,
 }: {
   sessionId: string;
   path: string | null;
+  accessToken: string;
 }) {
   const [content, setContent] = useState("");
   const [truncated, setTruncated] = useState(false);
@@ -39,7 +44,7 @@ export function CodeViewer({
     setError(null);
     setDirty(false);
 
-    getSessionFileContent(sessionId, path)
+    getSessionFileContentClient(sessionId, path, accessToken)
       .then((res) => {
         if (cancelled) return;
         setContent(res.content);
@@ -56,13 +61,13 @@ export function CodeViewer({
     return () => {
       cancelled = true;
     };
-  }, [sessionId, path]);
+  }, [sessionId, path, accessToken]);
 
   async function handleSave() {
     if (!path) return;
     setSaving(true);
     try {
-      await saveSessionFileContent(sessionId, path, content);
+      await saveSessionFileContentClient(sessionId, path, content, accessToken);
       setDirty(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save file.");

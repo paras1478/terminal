@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import { env } from "@/lib/env";
-import { getSessionFileTree, type FileNode } from "@/lib/api/dashboard";
+import { getSessionFileTreeClient } from "@/lib/api/dashboard-client";
+import type { FileNode } from "@/lib/schemas/files";
 
 type FileChangeEvent = {
   type: "add" | "addDir" | "unlink" | "unlinkDir" | "change";
@@ -175,7 +176,7 @@ export function FileExplorer({
   const loadTree = useCallback(async () => {
     setLoading(true);
     try {
-      const tree = await getSessionFileTree(sessionId);
+      const tree = await getSessionFileTreeClient(sessionId, accessToken);
       setRoot(tree);
       setError(null);
     } catch (err) {
@@ -183,7 +184,7 @@ export function FileExplorer({
     } finally {
       setLoading(false);
     }
-  }, [sessionId]);
+  }, [sessionId, accessToken]);
 
   useEffect(() => {
     loadTree();

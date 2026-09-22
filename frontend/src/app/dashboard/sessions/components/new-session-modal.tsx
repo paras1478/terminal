@@ -76,39 +76,36 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
           )}
 
           <div>
-            <label className="block text-xs font-medium text-slate-400">Project location</label>
+            <label htmlFor="path" className="block text-xs font-medium text-slate-400">
+              Project location
+            </label>
 
-            <input type="hidden" name="path" value={selectedPath} />
-
-            {isElectron ? (
-              <>
-                {selectedPath ? (
-                  <div className="mt-1 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 font-mono text-sm text-slate-200">
-                    {selectedPath}
-                  </div>
-                ) : (
-                  <p className="mt-1 text-xs text-slate-500">No folder selected yet.</p>
-                )}
+            <div className="mt-1 flex gap-2">
+              <input
+                id="path"
+                name="path"
+                type="text"
+                value={selectedPath}
+                onChange={(e) => setSelectedPath(e.target.value)}
+                placeholder="C:\Users\you\projects\my-app"
+                className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 font-mono text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+              />
+              {isElectron && (
                 <button
                   type="button"
                   onClick={handleSelectFolder}
-                  className="mt-2 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm font-medium text-slate-200 transition hover:border-emerald-400/40 hover:bg-white/[0.05]"
+                  className="shrink-0 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm font-medium text-slate-200 transition hover:border-emerald-400/40 hover:bg-white/[0.05]"
                 >
-                  {selectedPath ? "Change Folder" : "Select Folder"}
+                  Browse…
                 </button>
-                {folderError && (
-                  <p className="mt-1 text-xs text-red-300">{folderError}</p>
-                )}
-              </>
-            ) : (
-              <div className="mt-1 space-y-1.5 rounded-lg border border-amber-400/20 bg-amber-400/5 px-3 py-2.5 text-xs text-amber-300">
-                <p>
-                  A browser tab can&rsquo;t safely grant a server access to an arbitrary folder on
-                  your computer. Open termina.ai Desktop to work with a local folder.
-                </p>
-                <p className="font-mono text-amber-200/80">cd electron &amp;&amp; npm start</p>
-              </div>
-            )}
+              )}
+            </div>
+
+            <p className="mt-1 text-xs text-slate-500">
+              Enter the absolute path to a project folder already on this machine.
+            </p>
+
+            {folderError && <p className="mt-1 text-xs text-red-300">{folderError}</p>}
 
             {state.fieldErrors?.path && (
               <p className="mt-1 text-xs text-red-300">{state.fieldErrors.path[0]}</p>

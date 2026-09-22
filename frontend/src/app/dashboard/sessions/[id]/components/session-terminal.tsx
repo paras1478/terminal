@@ -19,6 +19,8 @@ export function SessionTerminal({
   useEffect(() => {
     if (!containerRef.current) return;
 
+    let disposed = false;
+
     const term = new Terminal({
       convertEol: true,
       fontSize: 13,
@@ -36,25 +38,35 @@ export function SessionTerminal({
       transports: ["websocket"],
     });
 
-    socket.on("terminal:output", (data: string) => term.write(data));
+    // Guards against a stale connection (e.g. React StrictMode's mount/cleanup/mount
+    // in dev) writing into a terminal instance that has already been disposed.
+    socket.on("terminal:output", (data: string) => {
+      if (disposed) return;
+      term.write(data);
+    });
     socket.on("terminal:error", (message: string) => {
+      if (disposed) return;
       term.write(`\r\n\x1b[31m${message}\x1b[0m\r\n`);
     });
     socket.on("terminal:exit", (code: number) => {
+      if (disposed) return;
       term.write(`\r\n\x1b[90mProcess exited with code ${code}\x1b[0m\r\n`);
     });
 
     const onData = term.onData((data) => {
+      if (disposed) return;
       socket.emit("terminal:input", data);
     });
 
     const handleResize = () => {
+      if (disposed) return;
       fitAddon.fit();
       socket.emit("terminal:resize", { cols: term.cols, rows: term.rows });
     };
     window.addEventListener("resize", handleResize);
 
     return () => {
+      disposed = true;
       window.removeEventListener("resize", handleResize);
       onData.dispose();
       socket.disconnect();

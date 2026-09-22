@@ -415,19 +415,8 @@ export function disconnectIntegration(key: string): Promise<Integration> {
   });
 }
 
-export type FileNode = {
-  name: string;
-  path: string;
-  type: "file" | "directory";
-  size?: number;
-  children?: FileNode[];
-};
-
-export interface FileContent {
-  path: string;
-  content: string;
-  truncated: boolean;
-}
+export type { FileNode, FileContent } from "@/lib/schemas/files";
+import type { FileNode, FileContent } from "@/lib/schemas/files";
 
 export function getSessionFileTree(sessionId: string): Promise<FileNode> {
   return request<FileNode>(`/sessions/${encodeURIComponent(sessionId)}/files`);

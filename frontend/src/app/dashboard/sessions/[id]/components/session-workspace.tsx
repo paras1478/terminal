@@ -99,7 +99,7 @@ export function SessionWorkspace({
 
         <div className="min-h-0 flex-1">
           <div className={activeTab === "editor" ? "h-full" : "hidden"}>
-            <CodeViewer sessionId={sessionId} path={selectedPath} />
+            <CodeViewer sessionId={sessionId} path={selectedPath} accessToken={accessToken} />
           </div>
           <div className={activeTab === "terminal" ? "h-full" : "hidden"}>
             <SessionTerminal sessionId={sessionId} accessToken={accessToken} />
