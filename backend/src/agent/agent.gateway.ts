@@ -17,7 +17,7 @@ import { AgentService } from './agent.service';
 
 @WebSocketGateway({
   namespace: 'agent',
-  cors: { origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173', credentials: true },
+  cors: { origin: process.env.CORS_ORIGIN ?? 'https://terminal-1-riuw.onrender.com', credentials: true },
 })
 export class AgentGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()

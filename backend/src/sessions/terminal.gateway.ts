@@ -21,7 +21,7 @@ const SHELL = process.platform === 'win32' ? 'powershell.exe' : 'bash';
 
 @WebSocketGateway({
   namespace: 'terminal',
-  cors: { origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173', credentials: true },
+  cors: { origin: process.env.CORS_ORIGIN ?? 'https://terminal-1-riuw.onrender.com', credentials: true },
 })
 export class TerminalGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()

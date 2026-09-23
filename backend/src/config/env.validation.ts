@@ -13,7 +13,7 @@ export const envValidationSchema = Joi.object({
   JWT_REFRESH_SECRET: Joi.string().min(16).required(),
   JWT_REFRESH_EXPIRES_IN: Joi.string().default('7d'),
 
-  CORS_ORIGIN: Joi.string().default('http://localhost:5173'),
+  CORS_ORIGIN: Joi.string().default('https://terminal-1-riuw.onrender.com'),
 
   THROTTLE_TTL: Joi.number().default(60000),
   THROTTLE_LIMIT: Joi.number().default(20),
