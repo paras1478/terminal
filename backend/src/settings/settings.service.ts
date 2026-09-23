@@ -1,8 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
-import { SettingsResponseDto } from './dto/settings-response.dto';
+import { AvailableModelDto, SettingsResponseDto } from './dto/settings-response.dto';
+import { AI_MODELS, AI_PROVIDERS, AiProviderId } from '../ai/model-catalog';
+import { ProviderRegistryService } from '../ai/provider-registry.service';
+
+const KNOWN_PROVIDER_IDS = new Set<string>(AI_PROVIDERS.map((p) => p.id));
+
+function isKnownProvider(provider: string): provider is AiProviderId {
+  return KNOWN_PROVIDER_IDS.has(provider);
+}
 
 function maskApiKeys(apiKeys: Prisma.JsonValue | null): Record<string, string> {
   const raw = (apiKeys as Record<string, string> | null) ?? {};
@@ -18,7 +26,20 @@ function maskApiKeys(apiKeys: Prisma.JsonValue | null): Record<string, string> {
 
 @Injectable()
 export class SettingsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly providerRegistry: ProviderRegistryService,
+  ) {}
+
+  private computeAvailableModels(rawApiKeys: Prisma.JsonValue | null): AvailableModelDto[] {
+    const userApiKeys = (rawApiKeys as Record<string, string> | null) ?? {};
+    return AI_MODELS.map((model) => ({
+      id: model.id,
+      provider: model.provider,
+      label: model.label,
+      available: Boolean(this.providerRegistry.resolveApiKey(model.provider, userApiKeys)),
+    }));
+  }
 
   async getOrCreateRaw(userId: string) {
     return this.prisma.userSettings.upsert({
@@ -48,6 +69,7 @@ export class SettingsService {
       theme: settings.theme,
       modelSelection: settings.modelSelection,
       apiKeys: maskApiKeys(settings.apiKeys),
+      availableModels: this.computeAvailableModels(settings.apiKeys),
       updatedAt: settings.updatedAt,
     };
   }
@@ -117,7 +139,54 @@ export class SettingsService {
       theme: updated.theme,
       modelSelection: updated.modelSelection,
       apiKeys: maskApiKeys(updated.apiKeys),
+      availableModels: this.computeAvailableModels(updated.apiKeys),
       updatedAt: updated.updatedAt,
     };
+  }
+
+  async deleteApiKey(userId: string, provider: string): Promise<SettingsResponseDto> {
+    const existing = await this.prisma.userSettings.upsert({
+      where: { userId },
+      update: {},
+      create: { userId },
+    });
+
+    const raw = { ...(existing.apiKeys as Record<string, string>) };
+    if (!(provider in raw)) {
+      throw new NotFoundException(`No API key stored for provider "${provider}".`);
+    }
+    delete raw[provider];
+
+    const updated = await this.prisma.userSettings.update({
+      where: { userId },
+      data: { apiKeys: raw },
+    });
+
+    return {
+      confirmationRequired: updated.confirmationRequired,
+      allowedPatterns: updated.allowedPatterns,
+      dangerousBlocklist: updated.dangerousBlocklist,
+      maxStepsPerTask: updated.maxStepsPerTask,
+      maxRuntimeSeconds: updated.maxRuntimeSeconds,
+      maxConcurrentSessions: updated.maxConcurrentSessions,
+      notifyOnCompletion: updated.notifyOnCompletion,
+      notifyOnFailure: updated.notifyOnFailure,
+      notifyByEmail: updated.notifyByEmail,
+      theme: updated.theme,
+      modelSelection: updated.modelSelection,
+      apiKeys: maskApiKeys(updated.apiKeys),
+      availableModels: this.computeAvailableModels(updated.apiKeys),
+      updatedAt: updated.updatedAt,
+    };
+  }
+
+  async validateApiKey(
+    provider: string,
+    apiKey: string,
+  ): Promise<{ valid: boolean; message?: string }> {
+    if (!isKnownProvider(provider)) {
+      return { valid: false, message: `Unknown provider "${provider}".` };
+    }
+    return this.providerRegistry.getProvider(provider).validateApiKey(apiKey);
   }
 }

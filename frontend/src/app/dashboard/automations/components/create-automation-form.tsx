@@ -18,7 +18,7 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
       )}
 
       <div>
-        <label htmlFor="name" className="block text-xs font-medium text-slate-400">
+        <label htmlFor="name" className="block text-xs font-medium text-muted">
           Name
         </label>
         <input
@@ -27,13 +27,13 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
           type="text"
           required
           maxLength={150}
-          className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
         />
         {state.fieldErrors?.name && <p className="mt-1 text-xs text-red-300">{state.fieldErrors.name[0]}</p>}
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-xs font-medium text-slate-400">
+        <label htmlFor="description" className="block text-xs font-medium text-muted">
           Description
         </label>
         <textarea
@@ -42,7 +42,7 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
           required
           maxLength={1000}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
         />
         {state.fieldErrors?.description && (
           <p className="mt-1 text-xs text-red-300">{state.fieldErrors.description[0]}</p>
@@ -50,7 +50,7 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
       </div>
 
       <div>
-        <label htmlFor="taskGoal" className="block text-xs font-medium text-slate-400">
+        <label htmlFor="taskGoal" className="block text-xs font-medium text-muted">
           Task goal
         </label>
         <input
@@ -59,7 +59,7 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
           type="text"
           required
           maxLength={500}
-          className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
         />
         {state.fieldErrors?.taskGoal && (
           <p className="mt-1 text-xs text-red-300">{state.fieldErrors.taskGoal[0]}</p>
@@ -67,14 +67,14 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
       </div>
 
       <div>
-        <label htmlFor="workspaceId" className="block text-xs font-medium text-slate-400">
+        <label htmlFor="workspaceId" className="block text-xs font-medium text-muted">
           Workspace
         </label>
         <select
           id="workspaceId"
           name="workspaceId"
           required
-          className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
         >
           <option value="">Select a workspace</option>
           {workspaces.map((w) => (
@@ -89,7 +89,7 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
       </div>
 
       <div>
-        <label htmlFor="schedule" className="block text-xs font-medium text-slate-400">
+        <label htmlFor="schedule" className="block text-xs font-medium text-muted">
           Schedule (cron or interval string)
         </label>
         <input
@@ -99,19 +99,19 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
           required
           placeholder="0 2 * * *"
           maxLength={100}
-          className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
         />
         {state.fieldErrors?.schedule && (
           <p className="mt-1 text-xs text-red-300">{state.fieldErrors.schedule[0]}</p>
         )}
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-slate-300">
+      <label className="flex items-center gap-2 text-sm text-tertiary">
         <input
           type="checkbox"
           name="enabled"
           defaultChecked
-          className="h-4 w-4 rounded border-white/20 bg-white/[0.03]"
+          className="h-4 w-4 rounded border-strong panel-bg"
         />
         Enabled
       </label>

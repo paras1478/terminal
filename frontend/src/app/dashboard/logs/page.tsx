@@ -45,25 +45,25 @@ export default async function LogsPage({
   return (
     <>
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-100">Logs</h1>
-        <p className="mt-1 text-sm text-slate-500">Command and output history across all sessions.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Logs</h1>
+        <p className="mt-1 text-sm text-faint">Command and output history across all sessions.</p>
       </div>
 
       <form
         method="get"
-        className="grid grid-cols-1 gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:grid-cols-5"
+        className="grid grid-cols-1 gap-3 rounded-2xl border border-default panel-bg p-4 sm:grid-cols-5"
       >
         <input
           type="text"
           name="q"
           defaultValue={params.q ?? ""}
           placeholder="Search commands…"
-          className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40 sm:col-span-2"
+          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40 sm:col-span-2"
         />
         <select
           name="status"
           defaultValue={params.status ?? ""}
-          className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
         >
           <option value="">Any status</option>
           <option value="success">Success</option>
@@ -72,7 +72,7 @@ export default async function LogsPage({
         <select
           name="workspaceId"
           defaultValue={params.workspaceId ?? ""}
-          className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
         >
           <option value="">Any workspace</option>
           {workspaces.map((w) => (
@@ -91,13 +91,13 @@ export default async function LogsPage({
           type="datetime-local"
           name="from"
           defaultValue={params.from ?? ""}
-          className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40 sm:col-span-2"
+          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40 sm:col-span-2"
         />
         <input
           type="datetime-local"
           name="to"
           defaultValue={params.to ?? ""}
-          className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40 sm:col-span-2"
+          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40 sm:col-span-2"
         />
       </form>
 
@@ -108,17 +108,17 @@ export default async function LogsPage({
       )}
 
       {data && data.items.length === 0 && (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center text-sm text-slate-400">
+        <div className="rounded-2xl border border-default panel-bg p-8 text-center text-sm text-muted">
           No logs match these filters.
         </div>
       )}
 
       {data && data.items.length > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl">
+        <div className="overflow-hidden rounded-2xl border border-default panel-bg backdrop-blur-xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-slate-500">
+                <tr className="border-b border-default text-xs uppercase tracking-wide text-faint">
                   <th className="px-5 py-3 font-medium">Command</th>
                   <th className="px-5 py-3 font-medium">Workspace</th>
                   <th className="px-5 py-3 font-medium">Exit</th>
@@ -127,19 +127,19 @@ export default async function LogsPage({
               </thead>
               <tbody>
                 {data.items.map((log) => (
-                  <tr key={log.id} className="border-b border-white/5 transition hover:bg-white/[0.03]">
+                  <tr key={log.id} className="border-b border-subtle transition hover:panel-bg">
                     <td className="px-5 py-3.5">
                       <Link
                         href={`/dashboard/logs/${log.id}`}
-                        className="block font-mono text-slate-200 hover:text-emerald-300"
+                        className="block font-mono text-secondary hover:text-emerald-300"
                       >
                         {log.command}
                       </Link>
-                      <div className="mt-0.5 max-w-md truncate text-xs text-slate-500">
+                      <div className="mt-0.5 max-w-md truncate text-xs text-faint">
                         {log.outputPreview}
                       </div>
                     </td>
-                    <td className="px-5 py-3.5 text-slate-400">{log.workspaceName}</td>
+                    <td className="px-5 py-3.5 text-muted">{log.workspaceName}</td>
                     <td className="px-5 py-3.5">
                       <span
                         className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${
@@ -151,7 +151,7 @@ export default async function LogsPage({
                         {log.exitStatus}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-slate-500">
+                    <td className="px-5 py-3.5 text-faint">
                       {new Date(log.timestamp).toLocaleString()}
                     </td>
                   </tr>
@@ -159,7 +159,7 @@ export default async function LogsPage({
               </tbody>
             </table>
           </div>
-          <div className="flex items-center justify-between border-t border-white/10 px-5 py-3 text-xs text-slate-500">
+          <div className="flex items-center justify-between border-t border-default px-5 py-3 text-xs text-faint">
             <span>
               Page {data.page} · {data.total} total
             </span>
@@ -167,7 +167,7 @@ export default async function LogsPage({
               {page > 1 && (
                 <Link
                   href={{ pathname: "/dashboard/logs", query: { ...params, page: page - 1 } }}
-                  className="rounded-lg border border-white/10 px-3 py-1.5 text-slate-300 hover:border-white/20"
+                  className="rounded-lg border border-default px-3 py-1.5 text-tertiary hover:border-strong"
                 >
                   Previous
                 </Link>
@@ -175,7 +175,7 @@ export default async function LogsPage({
               {page * data.pageSize < data.total && (
                 <Link
                   href={{ pathname: "/dashboard/logs", query: { ...params, page: page + 1 } }}
-                  className="rounded-lg border border-white/10 px-3 py-1.5 text-slate-300 hover:border-white/20"
+                  className="rounded-lg border border-default px-3 py-1.5 text-tertiary hover:border-strong"
                 >
                   Next
                 </Link>

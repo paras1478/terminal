@@ -19,8 +19,8 @@ export default async function WorkspacesPage() {
   return (
     <>
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-100">Workspaces</h1>
-        <p className="mt-1 text-sm text-slate-500">Connected repositories and projects.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Workspaces</h1>
+        <p className="mt-1 text-sm text-faint">Connected repositories and projects.</p>
       </div>
 
       {error && (
@@ -30,7 +30,7 @@ export default async function WorkspacesPage() {
       )}
 
       {workspaces.length === 0 && !error && (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center text-sm text-slate-400">
+        <div className="rounded-2xl border border-default panel-bg p-8 text-center text-sm text-muted">
           No workspaces yet.
         </div>
       )}
@@ -40,20 +40,20 @@ export default async function WorkspacesPage() {
           <Link
             key={w.id}
             href={`/dashboard/workspaces/${w.id}`}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl transition hover:border-white/20"
+            className="rounded-2xl border border-default panel-bg p-5 backdrop-blur-xl transition hover:border-strong"
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 font-mono text-xs text-slate-300">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-default bg-white/5 font-mono text-xs text-tertiary">
                 {w.name.slice(0, 2).toUpperCase()}
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-200">{w.name}</p>
-                <p className="font-mono text-xs text-slate-500">{w.languageStack}</p>
+                <p className="text-sm font-medium text-secondary">{w.name}</p>
+                <p className="font-mono text-xs text-faint">{w.languageStack}</p>
               </div>
             </div>
-            <p className="mt-3 truncate text-xs text-slate-500">{w.pathOrRepoUrl}</p>
-            <p className="mt-1 text-xs text-slate-400">{w.recentActivity}</p>
-            <div className="mt-4 flex items-center gap-4 text-xs text-slate-500">
+            <p className="mt-3 truncate text-xs text-faint">{w.pathOrRepoUrl}</p>
+            <p className="mt-1 text-xs text-muted">{w.recentActivity}</p>
+            <div className="mt-4 flex items-center gap-4 text-xs text-faint">
               <span>{w.sessionsCount} sessions</span>
               <span>{w.tasksCount} tasks</span>
             </div>

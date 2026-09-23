@@ -5,21 +5,17 @@ import {
   IsBoolean,
   IsIn,
   IsInt,
-  IsObject,
   IsOptional,
   IsString,
   Max,
   MaxLength,
   Min,
 } from 'class-validator';
+import { ALLOWED_MODEL_IDS } from '../../ai/model-catalog';
+import { IsValidApiKeyMap } from './is-valid-api-key-map.validator';
 
 const ALLOWED_THEMES = ['dark', 'light', 'system'];
-const ALLOWED_MODELS = [
-  'claude-sonnet-5',
-  'claude-opus-5',
-  'claude-fable-5',
-  'claude-haiku-4-5-20251001',
-];
+const ALLOWED_MODELS = ALLOWED_MODEL_IDS;
 
 export class UpdateSettingsDto {
   @ApiPropertyOptional()
@@ -95,6 +91,6 @@ export class UpdateSettingsDto {
       'Map of provider name to API key. Keys are stored server-side only.',
   })
   @IsOptional()
-  @IsObject()
+  @IsValidApiKeyMap()
   apiKeys?: Record<string, string>;
 }

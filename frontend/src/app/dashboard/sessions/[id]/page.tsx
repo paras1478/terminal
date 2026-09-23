@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ApiError, getSession, type SessionStatus } from "@/lib/api/dashboard";
+import { ApiError, getSession, getSettings, type SessionStatus } from "@/lib/api/dashboard";
 import { getAccessToken } from "@/lib/auth/session";
 import { SessionTerminal } from "./components/session-terminal";
 import { AgentPanel } from "./components/agent-panel";
@@ -34,6 +34,16 @@ export default async function SessionDetailPage({
 
   const accessToken = await getAccessToken();
 
+  let notifyOnCompletion = true;
+  let notifyOnFailure = true;
+  try {
+    const settings = await getSettings();
+    notifyOnCompletion = settings.notifyOnCompletion;
+    notifyOnFailure = settings.notifyOnFailure;
+  } catch {
+    // fall back to notifying on both outcomes if settings can't be loaded
+  }
+
   return (
     <>
       <div>
@@ -52,8 +62,8 @@ export default async function SessionDetailPage({
         <>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-100">{session.goal}</h1>
-              <p className="mt-1 text-sm text-slate-500">{session.workspaceName}</p>
+              <h1 className="text-2xl font-bold tracking-tight text-primary">{session.goal}</h1>
+              <p className="mt-1 text-sm text-faint">{session.workspaceName}</p>
             </div>
             <span
               className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium ${STATUS_STYLES[session.status]}`}
@@ -63,32 +73,32 @@ export default async function SessionDetailPage({
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-xs text-slate-500">Started</p>
-              <p className="mt-1 text-sm text-slate-200">
+            <div className="rounded-2xl border border-default panel-bg p-4">
+              <p className="text-xs text-faint">Started</p>
+              <p className="mt-1 text-sm text-secondary">
                 {new Date(session.startedAt).toLocaleString()}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-xs text-slate-500">Completed</p>
-              <p className="mt-1 text-sm text-slate-200">
+            <div className="rounded-2xl border border-default panel-bg p-4">
+              <p className="text-xs text-faint">Completed</p>
+              <p className="mt-1 text-sm text-secondary">
                 {session.completedAt ? new Date(session.completedAt).toLocaleString() : "In progress"}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-xs text-slate-500">Commands run</p>
-              <p className="mt-1 text-sm text-slate-200">{session.commandsCount}</p>
+            <div className="rounded-2xl border border-default panel-bg p-4">
+              <p className="text-xs text-faint">Commands run</p>
+              <p className="mt-1 text-sm text-secondary">{session.commandsCount}</p>
             </div>
           </div>
 
           {session.plan.length > 0 && (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-              <h2 className="font-semibold text-slate-100">Plan</h2>
+            <div className="rounded-2xl border border-default panel-bg p-5">
+              <h2 className="font-semibold text-primary">Plan</h2>
               <div className="mt-3 space-y-2">
                 {session.plan.map((step) => (
                   <div
                     key={step.order}
-                    className={`flex items-center gap-2 text-sm ${step.done ? "text-emerald-300" : "text-slate-400"}`}
+                    className={`flex items-center gap-2 text-sm ${step.done ? "text-emerald-300" : "text-muted"}`}
                   >
                     <span>{step.done ? "✓" : "○"}</span>
                     <span>{step.label}</span>
@@ -101,17 +111,22 @@ export default async function SessionDetailPage({
           {accessToken && (
             <>
               <SessionWorkspace sessionId={session.id} accessToken={accessToken} />
-              <AgentPanel sessionId={session.id} accessToken={accessToken} />
+              <AgentPanel
+                sessionId={session.id}
+                accessToken={accessToken}
+                notifyOnCompletion={notifyOnCompletion}
+                notifyOnFailure={notifyOnFailure}
+              />
             </>
           )}
 
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0a0c12]/90">
-            <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
-              <h2 className="font-mono text-xs text-slate-500">timeline</h2>
+          <div className="overflow-hidden rounded-2xl border border-default surface-bg/90">
+            <div className="border-b border-default panel-bg px-4 py-3">
+              <h2 className="font-mono text-xs text-faint">timeline</h2>
             </div>
             <div className="space-y-1.5 p-5 font-mono text-[13px] leading-relaxed">
               {session.timeline.length === 0 && (
-                <p className="text-slate-500">No timeline steps recorded.</p>
+                <p className="text-faint">No timeline steps recorded.</p>
               )}
               {session.timeline.map((step, i) => {
                 const isCommand = step.type === "COMMAND" || step.type === "command";
@@ -119,12 +134,12 @@ export default async function SessionDetailPage({
                 return (
                   <div key={`${step.order}-${i}`}>
                     {isCommand ? (
-                      <div className="flex gap-2 text-slate-200">
+                      <div className="flex gap-2 text-secondary">
                         <span className="text-emerald-400">$</span>
                         <span>{step.command}</span>
                       </div>
                     ) : (
-                      <div className={`pl-4 ${isError ? "text-red-400" : "text-slate-500"}`}>
+                      <div className={`pl-4 ${isError ? "text-red-400" : "text-faint"}`}>
                         {step.output ?? step.type}
                       </div>
                     )}

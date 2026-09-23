@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, ipcMain } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain, Notification } = require("electron");
 const path = require("path");
 
 const APP_URL = process.env.APP_URL || "https://terminal-1-riuw.onrender.com";
@@ -29,6 +29,14 @@ ipcMain.handle("dialog:select-folder", async (event) => {
   }
 
   return result.filePaths[0];
+});
+
+ipcMain.handle("notification:show", (_event, { title, body }) => {
+  if (!Notification.isSupported()) {
+    return false;
+  }
+  new Notification({ title: String(title ?? "Notification"), body: String(body ?? "") }).show();
+  return true;
 });
 
 app.whenReady().then(() => {

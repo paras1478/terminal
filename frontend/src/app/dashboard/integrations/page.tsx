@@ -19,8 +19,8 @@ export default async function IntegrationsPage() {
   return (
     <>
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-100">Integrations</h1>
-        <p className="mt-1 text-sm text-slate-500">Connect external tools and services.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Integrations</h1>
+        <p className="mt-1 text-sm text-faint">Connect external tools and services.</p>
       </div>
 
       {error && (
@@ -30,7 +30,7 @@ export default async function IntegrationsPage() {
       )}
 
       {integrations.length === 0 && !error && (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center text-sm text-slate-400">
+        <div className="rounded-2xl border border-default panel-bg p-8 text-center text-sm text-muted">
           No integrations available.
         </div>
       )}
@@ -39,25 +39,25 @@ export default async function IntegrationsPage() {
         {integrations.map((integration) => (
           <div
             key={integration.key}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl"
+            className="rounded-2xl border border-default panel-bg p-5 backdrop-blur-xl"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-medium text-slate-200">{integration.name}</p>
-                <p className="mt-1 text-xs text-slate-500">{integration.description}</p>
+                <p className="font-medium text-secondary">{integration.name}</p>
+                <p className="mt-1 text-xs text-faint">{integration.description}</p>
               </div>
               <span
                 className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${
                   integration.status === "CONNECTED"
                     ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                    : "border-slate-400/30 bg-slate-400/10 text-slate-400"
+                    : "border-slate-400/30 bg-slate-400/10 text-muted"
                 }`}
               >
                 {integration.status === "CONNECTED" ? "Connected" : "Not connected"}
               </span>
             </div>
             {integration.connectedAt && (
-              <p className="mt-3 text-xs text-slate-500">
+              <p className="mt-3 text-xs text-faint">
                 Connected {new Date(integration.connectedAt).toLocaleString()}
               </p>
             )}

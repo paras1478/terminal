@@ -77,12 +77,12 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r border-white/10 bg-white/[0.02] backdrop-blur-xl lg:flex">
-      <div className="flex h-16 items-center gap-2 border-b border-white/10 px-6">
+    <aside className="hidden w-64 shrink-0 flex-col border-r border-default panel-bg-soft backdrop-blur-xl lg:flex">
+      <div className="flex h-16 items-center gap-2 border-b border-default px-6">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-400/30 bg-emerald-400/10 font-mono text-sm text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.35)]">
           &gt;_
         </div>
-        <span className="font-mono text-sm font-semibold tracking-tight text-slate-100">
+        <span className="font-mono text-sm font-semibold tracking-tight text-primary">
           termina<span className="text-emerald-400">.ai</span>
         </span>
       </div>
@@ -97,7 +97,7 @@ export function Sidebar() {
               className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                 active
                   ? "bg-emerald-400/10 text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.12)_inset] ring-1 ring-emerald-400/20"
-                  : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                  : "text-muted hover:bg-white/5 hover:text-secondary"
               }`}
             >
               <NavIcon name={item.icon} />
@@ -107,10 +107,10 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="border-t border-white/10 p-4">
-        <div className="rounded-xl border border-white/10 bg-gradient-to-br from-emerald-500/10 to-violet-500/10 p-4">
-          <p className="text-xs font-semibold text-slate-200">Agent runtime</p>
-          <p className="mt-1 text-xs text-slate-400">v2.4.1 · connected</p>
+      <div className="border-t border-default p-4">
+        <div className="rounded-xl border border-default bg-gradient-to-br from-emerald-500/10 to-violet-500/10 p-4">
+          <p className="text-xs font-semibold text-secondary">Agent runtime</p>
+          <p className="mt-1 text-xs text-muted">v2.4.1 · connected</p>
           <div className="mt-3 flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />

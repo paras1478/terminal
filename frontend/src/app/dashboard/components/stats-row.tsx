@@ -101,7 +101,7 @@ export function StatsRow({ stats }: { stats: OverviewStats }) {
         return (
           <div
             key={s.title}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl transition hover:border-white/20"
+            className="rounded-2xl border border-default panel-bg p-5 backdrop-blur-xl transition hover:border-strong"
           >
             <div className="flex items-center justify-between">
               <div className={`flex h-9 w-9 items-center justify-center rounded-lg border ${accent.ring} ${accent.bg} ${accent.text}`}>
@@ -109,14 +109,14 @@ export function StatsRow({ stats }: { stats: OverviewStats }) {
               </div>
               <span
                 className={`text-xs font-medium ${
-                  s.trend === "up" ? "text-emerald-400" : s.trend === "down" ? "text-red-400" : "text-slate-500"
+                  s.trend === "up" ? "text-emerald-400" : s.trend === "down" ? "text-red-400" : "text-faint"
                 }`}
               >
                 {s.label}
               </span>
             </div>
-            <p className="mt-4 font-mono text-2xl font-bold text-slate-100">{s.value}</p>
-            <p className="mt-1 text-xs text-slate-500">{s.title}</p>
+            <p className="mt-4 font-mono text-2xl font-bold text-primary">{s.value}</p>
+            <p className="mt-1 text-xs text-faint">{s.title}</p>
           </div>
         );
       })}

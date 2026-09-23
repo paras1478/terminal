@@ -75,9 +75,9 @@ export function SessionTerminal({
   }, [sessionId, accessToken]);
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a0c12]/90">
-      <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
-        <h2 className="font-mono text-xs text-slate-500">terminal</h2>
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-default surface-bg/90">
+      <div className="border-b border-default panel-bg px-4 py-3">
+        <h2 className="font-mono text-xs text-faint">terminal</h2>
       </div>
       <div ref={containerRef} className="min-h-[420px] flex-1 p-2" />
     </div>

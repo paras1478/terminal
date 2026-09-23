@@ -223,6 +223,15 @@ export interface Integration {
   config: Record<string, unknown> | null;
 }
 
+export type AiProviderId = "openai" | "anthropic" | "google";
+
+export interface AvailableModel {
+  id: string;
+  provider: AiProviderId;
+  label: string;
+  available: boolean;
+}
+
 export interface Settings {
   confirmationRequired: boolean;
   allowedPatterns: string[];
@@ -236,6 +245,7 @@ export interface Settings {
   theme: string;
   modelSelection: string;
   apiKeys: Record<string, unknown>;
+  availableModels: AvailableModel[];
   updatedAt: string;
 }
 
@@ -448,6 +458,22 @@ export function getSettings(): Promise<Settings> {
 
 export function updateSettings(payload: UpdateSettingsPayload): Promise<Settings> {
   return request<Settings>("/settings", { method: "PATCH", body: payload });
+}
+
+export function deleteApiKey(provider: string): Promise<Settings> {
+  return request<Settings>(`/settings/api-keys/${encodeURIComponent(provider)}`, {
+    method: "DELETE",
+  });
+}
+
+export function validateApiKey(
+  provider: string,
+  apiKey: string,
+): Promise<{ valid: boolean; message?: string }> {
+  return request<{ valid: boolean; message?: string }>("/settings/api-keys/validate", {
+    method: "POST",
+    body: { provider, apiKey },
+  });
 }
 
 export { ApiError };

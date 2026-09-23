@@ -43,16 +43,16 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
       aria-modal="true"
       aria-labelledby="new-session-title"
     >
-      <div className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 shadow-2xl backdrop-blur-xl">
-        <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
-          <h2 id="new-session-title" className="text-lg font-semibold text-slate-100">
+      <div className="w-full max-w-md overflow-hidden rounded-2xl border border-default surface-bg shadow-2xl backdrop-blur-xl">
+        <div className="flex items-center justify-between border-b border-default px-6 py-4">
+          <h2 id="new-session-title" className="text-lg font-semibold text-primary">
             New Session
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-slate-500 transition hover:text-slate-300"
+            className="text-faint transition hover:text-tertiary"
           >
             <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
               <path
@@ -76,7 +76,7 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
           )}
 
           <div>
-            <label htmlFor="path" className="block text-xs font-medium text-slate-400">
+            <label htmlFor="path" className="block text-xs font-medium text-muted">
               Project location
             </label>
 
@@ -88,20 +88,20 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
                 value={selectedPath}
                 onChange={(e) => setSelectedPath(e.target.value)}
                 placeholder="C:\Users\you\projects\my-app"
-                className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 font-mono text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+                className="w-full rounded-lg border border-default panel-bg px-3 py-2 font-mono text-sm text-secondary outline-none focus:border-emerald-400/40"
               />
               {isElectron && (
                 <button
                   type="button"
                   onClick={handleSelectFolder}
-                  className="shrink-0 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm font-medium text-slate-200 transition hover:border-emerald-400/40 hover:bg-white/[0.05]"
+                  className="shrink-0 rounded-lg border border-default panel-bg px-3 py-2 text-sm font-medium text-secondary transition hover:border-emerald-400/40 hover:panel-bg-strong"
                 >
                   Browse…
                 </button>
               )}
             </div>
 
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-faint">
               Enter the absolute path to a project folder already on this machine.
             </p>
 
@@ -113,7 +113,7 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div>
-            <label htmlFor="name" className="block text-xs font-medium text-slate-400">
+            <label htmlFor="name" className="block text-xs font-medium text-muted">
               Workspace name (optional)
             </label>
             <input
@@ -122,12 +122,12 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
               type="text"
               maxLength={200}
               placeholder="my-app"
-              className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
             />
           </div>
 
           <div>
-            <label htmlFor="goal" className="block text-xs font-medium text-slate-400">
+            <label htmlFor="goal" className="block text-xs font-medium text-muted">
               Goal
             </label>
             <textarea
@@ -137,7 +137,7 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
               maxLength={500}
               rows={3}
               placeholder="Fix the failing checkout tests"
-              className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
             />
             {state.fieldErrors?.goal && (
               <p className="mt-1 text-xs text-red-300">{state.fieldErrors.goal[0]}</p>
@@ -145,14 +145,14 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div>
-            <label htmlFor="agentType" className="block text-xs font-medium text-slate-400">
+            <label htmlFor="agentType" className="block text-xs font-medium text-muted">
               Agent type
             </label>
             <select
               id="agentType"
               name="agentType"
               defaultValue="FULL_STACK"
-              className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
             >
               <option value="FRONTEND">Frontend</option>
               <option value="BACKEND">Backend</option>
@@ -160,12 +160,12 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
             </select>
           </div>
 
-          <div className="flex gap-3 border-t border-white/10 pt-4">
+          <div className="flex gap-3 border-t border-default pt-4">
             <button
               type="button"
               onClick={onClose}
               disabled={pending}
-              className="flex-1 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/[0.05] disabled:opacity-50"
+              className="flex-1 rounded-lg border border-default px-4 py-2 text-sm font-medium text-tertiary transition hover:panel-bg-strong disabled:opacity-50"
             >
               Cancel
             </button>

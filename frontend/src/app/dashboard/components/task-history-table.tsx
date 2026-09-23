@@ -23,7 +23,7 @@ const STATUS_STYLES: Record<Status, string> = {
   completed: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
   running: "border-cyan-400/30 bg-cyan-400/10 text-cyan-300",
   failed: "border-red-400/30 bg-red-400/10 text-red-300",
-  queued: "border-slate-400/30 bg-slate-400/10 text-slate-300",
+  queued: "border-slate-400/30 bg-slate-400/10 text-tertiary",
 };
 
 const STATUS_LABEL: Record<Status, string> = {
@@ -35,9 +35,9 @@ const STATUS_LABEL: Record<Status, string> = {
 
 export function TaskHistoryTable() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl">
-      <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-        <h3 className="font-semibold text-slate-100">Task History</h3>
+    <div className="overflow-hidden rounded-2xl border border-default panel-bg backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-default px-5 py-4">
+        <h3 className="font-semibold text-primary">Task History</h3>
         <a href="#" className="text-xs font-medium text-emerald-300 hover:text-emerald-200">
           View all →
         </a>
@@ -45,7 +45,7 @@ export function TaskHistoryTable() {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-slate-500">
+            <tr className="border-b border-default text-xs uppercase tracking-wide text-faint">
               <th className="px-5 py-3 font-medium">Task</th>
               <th className="px-5 py-3 font-medium">Type</th>
               <th className="px-5 py-3 font-medium">Status</th>
@@ -55,12 +55,12 @@ export function TaskHistoryTable() {
           </thead>
           <tbody>
             {TASKS.map((task) => (
-              <tr key={task.id} className="border-b border-white/5 transition hover:bg-white/[0.03]">
+              <tr key={task.id} className="border-b border-subtle transition hover:panel-bg">
                 <td className="px-5 py-3.5">
-                  <div className="font-medium text-slate-200">{task.title}</div>
-                  <div className="font-mono text-xs text-slate-500">{task.id}</div>
+                  <div className="font-medium text-secondary">{task.title}</div>
+                  <div className="font-mono text-xs text-faint">{task.id}</div>
                 </td>
-                <td className="px-5 py-3.5 text-slate-400">{task.type}</td>
+                <td className="px-5 py-3.5 text-muted">{task.type}</td>
                 <td className="px-5 py-3.5">
                   <span
                     className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${STATUS_STYLES[task.status]}`}
@@ -68,8 +68,8 @@ export function TaskHistoryTable() {
                     {STATUS_LABEL[task.status]}
                   </span>
                 </td>
-                <td className="px-5 py-3.5 font-mono text-slate-400">{task.duration}</td>
-                <td className="px-5 py-3.5 text-slate-500">{task.updated}</td>
+                <td className="px-5 py-3.5 font-mono text-muted">{task.duration}</td>
+                <td className="px-5 py-3.5 text-faint">{task.updated}</td>
               </tr>
             ))}
           </tbody>

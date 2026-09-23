@@ -39,8 +39,8 @@ function ActionIcon({ name }: { name: string }) {
 
 export function QuickActions() {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl">
-      <h3 className="font-semibold text-slate-100">Quick Actions</h3>
+    <div className="rounded-2xl border border-default panel-bg p-5 backdrop-blur-xl">
+      <h3 className="font-semibold text-primary">Quick Actions</h3>
       <div className="mt-4 space-y-3">
         {ACTIONS.map((a) => {
           const accent = ACCENTS[a.accent];
@@ -48,14 +48,14 @@ export function QuickActions() {
             <button
               key={a.label}
               type="button"
-              className={`flex w-full items-center gap-3 rounded-xl border ${accent.ring} bg-white/[0.02] p-3.5 text-left transition ${accent.hover} hover:bg-white/[0.05]`}
+              className={`flex w-full items-center gap-3 rounded-xl border ${accent.ring} panel-bg-soft p-3.5 text-left transition ${accent.hover} hover:panel-bg-strong`}
             >
               <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${accent.bg} ${accent.text}`}>
                 <ActionIcon name={a.icon} />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-200">{a.label}</p>
-                <p className="text-xs text-slate-500">{a.desc}</p>
+                <p className="text-sm font-medium text-secondary">{a.label}</p>
+                <p className="text-xs text-faint">{a.desc}</p>
               </div>
             </button>
           );

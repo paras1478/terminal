@@ -64,7 +64,7 @@ export function SessionsTable({ initialItems }: { initialItems: SessionRow[] }) 
 
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center text-sm text-slate-400">
+      <div className="rounded-2xl border border-default panel-bg p-8 text-center text-sm text-muted">
         No sessions yet.
       </div>
     );
@@ -79,20 +79,20 @@ export function SessionsTable({ initialItems }: { initialItems: SessionRow[] }) 
           aria-modal="true"
           aria-labelledby="delete-session-title"
         >
-          <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 shadow-2xl backdrop-blur-xl">
+          <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-default surface-bg shadow-2xl backdrop-blur-xl">
             <div className="px-6 py-5">
-              <h2 id="delete-session-title" className="text-base font-semibold text-slate-100">
+              <h2 id="delete-session-title" className="text-base font-semibold text-primary">
                 Delete session
               </h2>
-              <p className="mt-2 text-sm text-slate-400">
+              <p className="mt-2 text-sm text-muted">
                 Are you sure you want to delete this session? This cannot be undone.
               </p>
             </div>
-            <div className="flex gap-3 border-t border-white/10 px-6 py-4">
+            <div className="flex gap-3 border-t border-default px-6 py-4">
               <button
                 type="button"
                 onClick={handleCancel}
-                className="flex-1 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/[0.05]"
+                className="flex-1 rounded-lg border border-default px-4 py-2 text-sm font-medium text-tertiary transition hover:panel-bg-strong"
               >
                 Cancel
               </button>
@@ -108,11 +108,11 @@ export function SessionsTable({ initialItems }: { initialItems: SessionRow[] }) 
         </div>
       )}
 
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl">
+    <div className="overflow-hidden rounded-2xl border border-default panel-bg backdrop-blur-xl">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-slate-500">
+            <tr className="border-b border-default text-xs uppercase tracking-wide text-faint">
               <th className="px-5 py-3 font-medium">Goal</th>
               <th className="px-5 py-3 font-medium">Workspace</th>
               <th className="px-5 py-3 font-medium">Status</th>
@@ -127,17 +127,17 @@ export function SessionsTable({ initialItems }: { initialItems: SessionRow[] }) 
             {items.map((session) => (
               <tr
                 key={session.id}
-                className="border-b border-white/5 transition hover:bg-white/[0.03]"
+                className="border-b border-subtle transition hover:panel-bg"
               >
                 <td className="px-5 py-3.5">
                   <Link
                     href={`/dashboard/sessions/${session.id}`}
-                    className="font-medium text-slate-200 hover:text-emerald-300"
+                    className="font-medium text-secondary hover:text-emerald-300"
                   >
                     {session.goal}
                   </Link>
                 </td>
-                <td className="px-5 py-3.5 text-slate-400">{session.workspaceName}</td>
+                <td className="px-5 py-3.5 text-muted">{session.workspaceName}</td>
                 <td className="px-5 py-3.5">
                   <span
                     className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${STATUS_STYLES[session.status]}`}
@@ -145,14 +145,14 @@ export function SessionsTable({ initialItems }: { initialItems: SessionRow[] }) 
                     {session.status}
                   </span>
                 </td>
-                <td className="px-5 py-3.5 text-slate-500">
+                <td className="px-5 py-3.5 text-faint">
                   {new Date(session.startedAt).toLocaleString()}
                 </td>
-                <td className="px-5 py-3.5 font-mono text-slate-400">
+                <td className="px-5 py-3.5 font-mono text-muted">
                   {formatDuration(session.durationSeconds)}
                 </td>
-                <td className="px-5 py-3.5 text-slate-400">{session.commandsCount}</td>
-                <td className="px-5 py-3.5 text-slate-500">
+                <td className="px-5 py-3.5 text-muted">{session.commandsCount}</td>
+                <td className="px-5 py-3.5 text-faint">
                   {new Date(session.lastActivityAt).toLocaleString()}
                 </td>
                 <td className="px-5 py-3.5 text-right">
@@ -162,7 +162,7 @@ export function SessionsTable({ initialItems }: { initialItems: SessionRow[] }) 
                     disabled={pendingId === session.id}
                     aria-label="Delete session"
                     title="Delete session"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs font-medium text-slate-400 transition hover:border-red-400/30 hover:bg-red-400/10 hover:text-red-300 disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-default px-2.5 py-1.5 text-xs font-medium text-muted transition hover:border-red-400/30 hover:bg-red-400/10 hover:text-red-300 disabled:opacity-50"
                   >
                     <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5">
                       <path

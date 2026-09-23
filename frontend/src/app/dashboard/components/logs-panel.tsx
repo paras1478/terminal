@@ -18,9 +18,9 @@ const LEVEL_STYLES: Record<Level, string> = {
 
 export function LogsPanel() {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl">
+    <div className="rounded-2xl border border-default panel-bg p-5 backdrop-blur-xl">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-slate-100">Recent Logs & Alerts</h3>
+        <h3 className="font-semibold text-primary">Recent Logs & Alerts</h3>
         <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-2.5 py-0.5 text-xs font-medium text-amber-300">
           1 warning
         </span>
@@ -30,9 +30,9 @@ export function LogsPanel() {
           <div key={i} className="flex items-start gap-3 text-sm">
             <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${LEVEL_STYLES[log.level]}`} />
             <div className="flex-1">
-              <p className="text-slate-300">{log.message}</p>
+              <p className="text-tertiary">{log.message}</p>
             </div>
-            <span className="shrink-0 font-mono text-xs text-slate-500">{log.time}</span>
+            <span className="shrink-0 font-mono text-xs text-faint">{log.time}</span>
           </div>
         ))}
       </div>

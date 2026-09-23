@@ -25,4 +25,10 @@ export const envValidationSchema = Joi.object({
   R2_PUBLIC_URL: Joi.string().uri().optional(),
 
   OPENAI_API_KEY: Joi.string().required(),
+
+  SMTP_HOST: Joi.string().optional(),
+  SMTP_PORT: Joi.number().default(587),
+  SMTP_USER: Joi.string().optional(),
+  SMTP_PASS: Joi.string().optional(),
+  SMTP_FROM: Joi.string().optional(),
 });

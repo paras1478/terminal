@@ -79,7 +79,7 @@ export function SessionWorkspace({
             className={`rounded-lg border px-3 py-1 text-xs font-medium ${
               activeTab === "editor"
                 ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                : "border-white/10 bg-white/[0.03] text-slate-400 hover:text-slate-200"
+                : "border-default panel-bg text-muted hover:text-secondary"
             }`}
           >
             Editor
@@ -90,7 +90,7 @@ export function SessionWorkspace({
             className={`rounded-lg border px-3 py-1 text-xs font-medium ${
               activeTab === "terminal"
                 ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                : "border-white/10 bg-white/[0.03] text-slate-400 hover:text-slate-200"
+                : "border-default panel-bg text-muted hover:text-secondary"
             }`}
           >
             Terminal

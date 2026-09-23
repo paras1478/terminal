@@ -40,8 +40,8 @@ export default async function LogDetailPage({
         <>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h1 className="font-mono text-xl font-bold text-slate-100">{log.command}</h1>
-              <p className="mt-1 text-sm text-slate-500">{log.workspaceName}</p>
+              <h1 className="font-mono text-xl font-bold text-primary">{log.command}</h1>
+              <p className="mt-1 text-sm text-faint">{log.workspaceName}</p>
             </div>
             <span
               className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium ${
@@ -55,13 +55,13 @@ export default async function LogDetailPage({
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-xs text-slate-500">Timestamp</p>
-              <p className="mt-1 text-sm text-slate-200">{new Date(log.timestamp).toLocaleString()}</p>
+            <div className="rounded-2xl border border-default panel-bg p-4">
+              <p className="text-xs text-faint">Timestamp</p>
+              <p className="mt-1 text-sm text-secondary">{new Date(log.timestamp).toLocaleString()}</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-xs text-slate-500">Session</p>
-              <p className="mt-1 text-sm text-slate-200">
+            <div className="rounded-2xl border border-default panel-bg p-4">
+              <p className="text-xs text-faint">Session</p>
+              <p className="mt-1 text-sm text-secondary">
                 {log.sessionId ? (
                   <Link href={`/dashboard/sessions/${log.sessionId}`} className="text-emerald-300 hover:text-emerald-200">
                     {log.sessionId}
@@ -73,11 +73,11 @@ export default async function LogDetailPage({
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0a0c12]/90">
-            <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
-              <h2 className="font-mono text-xs text-slate-500">full output</h2>
+          <div className="overflow-hidden rounded-2xl border border-default surface-bg/90">
+            <div className="border-b border-default panel-bg px-4 py-3">
+              <h2 className="font-mono text-xs text-faint">full output</h2>
             </div>
-            <pre className="overflow-x-auto whitespace-pre-wrap p-5 font-mono text-[13px] leading-relaxed text-slate-300">
+            <pre className="overflow-x-auto whitespace-pre-wrap p-5 font-mono text-[13px] leading-relaxed text-tertiary">
               {log.fullOutput}
             </pre>
           </div>

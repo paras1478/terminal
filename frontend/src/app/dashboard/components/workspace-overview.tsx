@@ -6,24 +6,24 @@ const WORKSPACES = [
 
 export function WorkspaceOverview() {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl">
+    <div className="rounded-2xl border border-default panel-bg p-5 backdrop-blur-xl">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-slate-100">Workspace Overview</h3>
-        <span className="text-xs text-slate-500">3 connected repos</span>
+        <h3 className="font-semibold text-primary">Workspace Overview</h3>
+        <span className="text-xs text-faint">3 connected repos</span>
       </div>
       <div className="mt-4 space-y-3">
         {WORKSPACES.map((w) => (
           <div
             key={w.name}
-            className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] p-3.5"
+            className="flex items-center justify-between rounded-xl border border-default panel-bg-soft p-3.5"
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 font-mono text-xs text-slate-300">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-default bg-white/5 font-mono text-xs text-tertiary">
                 {w.name.slice(0, 2).toUpperCase()}
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-200">{w.name}</p>
-                <p className="font-mono text-xs text-slate-500">
+                <p className="text-sm font-medium text-secondary">{w.name}</p>
+                <p className="font-mono text-xs text-faint">
                   {w.branch} · {w.lang}
                 </p>
               </div>

@@ -1,4 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
+import type { AiProviderId } from '../../ai/model-catalog';
+
+export class AvailableModelDto {
+  @ApiProperty()
+  id!: string;
+
+  @ApiProperty()
+  provider!: AiProviderId;
+
+  @ApiProperty()
+  label!: string;
+
+  @ApiProperty({ description: 'False if no API key is configured for this model\'s provider.' })
+  available!: boolean;
+}
 
 export class SettingsResponseDto {
   @ApiProperty()
@@ -36,6 +51,9 @@ export class SettingsResponseDto {
 
   @ApiProperty({ type: Object })
   apiKeys!: Record<string, unknown>;
+
+  @ApiProperty({ type: [AvailableModelDto] })
+  availableModels!: AvailableModelDto[];
 
   @ApiProperty()
   updatedAt!: Date;

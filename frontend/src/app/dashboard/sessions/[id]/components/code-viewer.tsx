@@ -78,16 +78,16 @@ export function CodeViewer({
 
   if (!path) {
     return (
-      <div className="flex h-full items-center justify-center rounded-2xl border border-white/10 bg-[#0a0c12]/90">
-        <p className="text-sm text-slate-600">Select a file from the explorer to view it.</p>
+      <div className="flex h-full items-center justify-center rounded-2xl border border-default surface-bg/90">
+        <p className="text-sm text-faint">Select a file from the explorer to view it.</p>
       </div>
     );
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a0c12]/90">
-      <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-4 py-3">
-        <h2 className="truncate font-mono text-xs text-slate-400" title={path}>
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-default surface-bg/90">
+      <div className="flex items-center justify-between border-b border-default panel-bg px-4 py-3">
+        <h2 className="truncate font-mono text-xs text-muted" title={path}>
           {path}
           {dirty && <span className="ml-1 text-amber-400">●</span>}
         </h2>
@@ -110,7 +110,7 @@ export function CodeViewer({
       <div className="flex-1">
         {loading && (
           <div className="flex h-full items-center justify-center">
-            <p className="text-xs text-slate-600">Loading file…</p>
+            <p className="text-xs text-faint">Loading file…</p>
           </div>
         )}
         {error && !loading && (

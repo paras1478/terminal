@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getSettings } from "@/lib/api/dashboard";
+import { getAccessToken } from "@/lib/auth/session";
 import { SettingsForm } from "./components/settings-form";
 
 export const metadata: Metadata = {
@@ -16,11 +17,13 @@ export default async function SettingsPage() {
     error = "Unable to load settings right now.";
   }
 
+  const accessToken = (await getAccessToken()) ?? "";
+
   return (
     <>
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-100">Settings</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Settings</h1>
+        <p className="mt-1 text-sm text-faint">
           Command safety, resource limits, notifications, and model preferences.
         </p>
       </div>
@@ -31,7 +34,7 @@ export default async function SettingsPage() {
         </div>
       )}
 
-      {settings && <SettingsForm settings={settings} />}
+      {settings && <SettingsForm settings={settings} accessToken={accessToken} />}
     </>
   );
 }

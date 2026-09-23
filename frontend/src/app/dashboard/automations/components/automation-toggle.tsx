@@ -22,7 +22,7 @@ export function AutomationToggle({ id, enabled }: { id: string; enabled: boolean
         className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border transition disabled:opacity-50 ${
           enabled
             ? "border-emerald-400/40 bg-emerald-400/20"
-            : "border-white/10 bg-white/[0.05]"
+            : "border-default panel-bg-strong"
         }`}
         aria-pressed={enabled}
         aria-label={enabled ? "Disable automation" : "Enable automation"}

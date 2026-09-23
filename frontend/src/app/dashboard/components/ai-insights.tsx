@@ -25,13 +25,13 @@ export function AiInsights() {
             <path d="M12 3v4M12 17v4M4 12h4M16 12h4M6 6l3 3M18 6l-3 3M6 18l3-3M18 18l-3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
         </div>
-        <h3 className="font-semibold text-slate-100">AI Assistant Insights</h3>
+        <h3 className="font-semibold text-primary">AI Assistant Insights</h3>
       </div>
       <div className="mt-4 space-y-3">
         {INSIGHTS.map((insight) => (
-          <div key={insight.title} className="rounded-xl border border-white/10 bg-white/[0.02] p-3.5">
-            <p className="text-sm font-medium text-slate-200">{insight.title}</p>
-            <p className="mt-1 text-xs leading-relaxed text-slate-400">{insight.desc}</p>
+          <div key={insight.title} className="rounded-xl border border-default panel-bg-soft p-3.5">
+            <p className="text-sm font-medium text-secondary">{insight.title}</p>
+            <p className="mt-1 text-xs leading-relaxed text-muted">{insight.desc}</p>
             <button
               type="button"
               className="mt-2 text-xs font-medium text-violet-300 hover:text-violet-200"

@@ -14,9 +14,9 @@ const BAR_COLOR: Record<string, string> = {
 
 export function SystemHealth() {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl">
+    <div className="rounded-2xl border border-default panel-bg p-5 backdrop-blur-xl">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-slate-100">System Health</h3>
+        <h3 className="font-semibold text-primary">System Health</h3>
         <span className="flex items-center gap-1.5 text-xs text-emerald-300">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
           Operational
@@ -26,8 +26,8 @@ export function SystemHealth() {
         {METRICS.map((m) => (
           <div key={m.label}>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400">{m.label}</span>
-              <span className="font-mono text-slate-300">{m.display ?? `${m.value}%`}</span>
+              <span className="text-muted">{m.label}</span>
+              <span className="font-mono text-tertiary">{m.display ?? `${m.value}%`}</span>
             </div>
             <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
               <div
@@ -38,18 +38,18 @@ export function SystemHealth() {
           </div>
         ))}
       </div>
-      <div className="mt-5 grid grid-cols-3 gap-2 border-t border-white/10 pt-4 text-center">
+      <div className="mt-5 grid grid-cols-3 gap-2 border-t border-default pt-4 text-center">
         <div>
           <p className="font-mono text-lg font-semibold text-emerald-300">6</p>
-          <p className="text-xs text-slate-500">Nodes up</p>
+          <p className="text-xs text-faint">Nodes up</p>
         </div>
         <div>
-          <p className="font-mono text-lg font-semibold text-slate-200">0</p>
-          <p className="text-xs text-slate-500">Incidents</p>
+          <p className="font-mono text-lg font-semibold text-secondary">0</p>
+          <p className="text-xs text-faint">Incidents</p>
         </div>
         <div>
-          <p className="font-mono text-lg font-semibold text-slate-200">99.98%</p>
-          <p className="text-xs text-slate-500">30d uptime</p>
+          <p className="font-mono text-lg font-semibold text-secondary">99.98%</p>
+          <p className="text-xs text-faint">30d uptime</p>
         </div>
       </div>
     </div>

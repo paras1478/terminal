@@ -22,35 +22,35 @@ export default async function ProfilePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-100">Profile</h1>
-        <p className="mt-1 text-sm text-slate-500">Your account information.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Profile</h1>
+        <p className="mt-1 text-sm text-faint">Your account information.</p>
       </div>
 
-      <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+      <div className="flex items-center gap-4 rounded-2xl border border-default panel-bg p-6">
         <div className="flex h-16 w-16 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-400/10 font-mono text-xl font-semibold text-emerald-300">
           {initials}
         </div>
         <div>
-          <p className="text-lg font-semibold text-slate-100">{displayName}</p>
-          <p className="text-sm text-slate-500">{roleLabel}</p>
-          <p className="mt-1 text-sm text-slate-400">{user.email}</p>
+          <p className="text-lg font-semibold text-primary">{displayName}</p>
+          <p className="text-sm text-faint">{roleLabel}</p>
+          <p className="mt-1 text-sm text-muted">{user.email}</p>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <h2 className="font-semibold text-slate-100">Account information</h2>
+      <div className="rounded-2xl border border-default panel-bg p-6">
+        <h2 className="font-semibold text-primary">Account information</h2>
         <dl className="mt-4 divide-y divide-white/10">
           <div className="flex items-center justify-between py-3 text-sm">
-            <dt className="text-slate-500">Name</dt>
-            <dd className="text-slate-200">{displayName}</dd>
+            <dt className="text-faint">Name</dt>
+            <dd className="text-secondary">{displayName}</dd>
           </div>
           <div className="flex items-center justify-between py-3 text-sm">
-            <dt className="text-slate-500">Email</dt>
-            <dd className="text-slate-200">{user.email}</dd>
+            <dt className="text-faint">Email</dt>
+            <dd className="text-secondary">{user.email}</dd>
           </div>
           <div className="flex items-center justify-between py-3 text-sm">
-            <dt className="text-slate-500">Role</dt>
-            <dd className="text-slate-200">{roleLabel}</dd>
+            <dt className="text-faint">Role</dt>
+            <dd className="text-secondary">{roleLabel}</dd>
           </div>
         </dl>
       </div>

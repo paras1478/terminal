@@ -38,10 +38,10 @@ export default async function OverviewPage() {
   return (
     <>
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-100">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">
           Welcome back{user?.firstName ? `, ${user.firstName}` : ""}
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-faint">
           Here&rsquo;s what your AI terminal agent has been up to.
         </p>
       </div>

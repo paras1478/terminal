@@ -1,15 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import OpenAI from 'openai';
-import type {
-  FunctionTool,
-  ResponseFunctionToolCall,
-  ResponseInputItem,
-} from 'openai/resources/responses/responses';
 import { randomUUID } from 'crypto';
 import { readFile, writeFile, readdir, stat } from 'fs/promises';
 import { PrismaService } from '../prisma/prisma.service';
 import { SettingsService } from '../settings/settings.service';
+import { ProviderRegistryService, AiProviderError } from '../ai/provider-registry.service';
+import { AiMessage, AiToolCall, AiToolDefinition } from '../ai/providers/provider.interface';
+import { NotificationsService } from '../notifications/notifications.service';
 import { isDestructiveCommand } from './destructive-command.util';
 import {
   isSecretLikePath,
@@ -29,7 +25,6 @@ function loadPty(): typeof import('node-pty') {
 
 const MAX_FILE_READ_BYTES = 200_000;
 const COMMAND_TIMEOUT_MS = 120_000;
-const MODEL = 'gpt-5.1';
 
 const SYSTEM_PROMPT = `You are an autonomous coding agent working inside a single project folder on the user's machine.
 
@@ -43,12 +38,10 @@ Rules:
 - Some commands are gated behind human confirmation (destructive operations). If a command is rejected, stop and explain what you wanted to do and why, and ask for guidance.
 - Never print or repeat secret values (API keys, passwords, tokens) even if you see them in a file.`;
 
-const TOOLS: FunctionTool[] = [
+const TOOLS: AiToolDefinition[] = [
   {
-    type: 'function',
     name: 'list_directory',
     description: 'List files and folders at a path relative to the project root.',
-    strict: false,
     parameters: {
       type: 'object',
       properties: { path: { type: 'string', description: 'Relative path, "." for root' } },
@@ -56,10 +49,8 @@ const TOOLS: FunctionTool[] = [
     },
   },
   {
-    type: 'function',
     name: 'read_file',
     description: 'Read a text file relative to the project root.',
-    strict: false,
     parameters: {
       type: 'object',
       properties: { path: { type: 'string' } },
@@ -67,10 +58,8 @@ const TOOLS: FunctionTool[] = [
     },
   },
   {
-    type: 'function',
     name: 'write_file',
     description: 'Write/overwrite a text file relative to the project root.',
-    strict: false,
     parameters: {
       type: 'object',
       properties: {
@@ -81,11 +70,9 @@ const TOOLS: FunctionTool[] = [
     },
   },
   {
-    type: 'function',
     name: 'run_command',
     description:
       'Run a shell command in the project root and return its stdout/stderr/exit code. Destructive commands require human confirmation first.',
-    strict: false,
     parameters: {
       type: 'object',
       properties: { command: { type: 'string' } },
@@ -101,9 +88,10 @@ export class AgentService {
   private readonly pendingConfirmations = new Map<string, PendingConfirmation>();
 
   constructor(
-    private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly settings: SettingsService,
+    private readonly providerRegistry: ProviderRegistryService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   isRunning(sessionId: string): boolean {
@@ -136,18 +124,25 @@ export class AgentService {
       throw new Error('Session not found');
     }
 
-    const apiKey = this.config.get<string>('OPENAI_API_KEY');
-    if (!apiKey || apiKey === 'your_openai_api_key_here') {
-      emit(this.event(sessionId, 'error', {
-        message:
-          'OPENAI_API_KEY is not configured. Add a real key to backend/.env to enable the AI agent.',
-      }));
+    const userSettings = await this.settings.getOrCreateRaw(userId);
+    const userApiKeys = (userSettings.apiKeys as Record<string, string> | null) ?? {};
+
+    let resolved: ReturnType<ProviderRegistryService['resolve']>;
+    try {
+      resolved = this.providerRegistry.resolve(userSettings.modelSelection, userApiKeys);
+    } catch (err) {
+      const message =
+        err instanceof AiProviderError
+          ? err.message
+          : 'Failed to resolve the selected AI model/provider.';
+      emit(this.event(sessionId, 'error', { message }));
+      await this.notifications.notifySessionOutcome(userId, sessionId, 'failed', message);
       return;
     }
 
+    const { provider, apiKey } = resolved;
+    const model = userSettings.modelSelection;
     const workspaceRoot = session.workspace.pathOrRepoUrl;
-    const userSettings = await this.settings.getOrCreateRaw(userId);
-    const client = new OpenAI({ apiKey });
 
     this.activeLoops.set(sessionId, true);
     let nextOrder = (await this.prisma.sessionStep.count({ where: { sessionId } })) + 1;
@@ -161,45 +156,45 @@ export class AgentService {
       });
     };
 
-    let input: ResponseInputItem[] = [{ role: 'user', content: goal }];
+    let messages: AiMessage[] = [{ role: 'user', content: goal }];
     const startedAt = Date.now();
     const maxSteps = userSettings.maxStepsPerTask;
     const maxRuntimeMs = userSettings.maxRuntimeSeconds * 1000;
 
     let step = 0;
+    let outcome: 'completed' | 'failed' = 'completed';
+    let outcomeDetail = 'The agent finished the requested task.';
     try {
       while (this.isRunning(sessionId) && step < maxSteps) {
         if (Date.now() - startedAt > maxRuntimeMs) {
           emit(this.event(sessionId, 'error', { message: 'Max runtime exceeded for this task.' }));
+          outcome = 'failed';
+          outcomeDetail = 'Max runtime exceeded for this task.';
           break;
         }
         step += 1;
 
-        const response = await client.responses.create({
-          model: MODEL,
-          instructions: SYSTEM_PROMPT,
+        const result = await provider.generateResponse(apiKey, {
+          model,
+          systemPrompt: SYSTEM_PROMPT,
           tools: TOOLS,
-          input,
+          messages,
         });
 
-        const textOutput = response.output_text?.trim();
-        if (textOutput) {
-          emit(this.event(sessionId, 'thinking', { text: textOutput }));
+        if (result.text) {
+          emit(this.event(sessionId, 'thinking', { text: result.text }));
         }
 
-        const toolCalls = response.output.filter(
-          (item): item is ResponseFunctionToolCall => item.type === 'function_call',
-        );
-
-        if (toolCalls.length === 0) {
+        if (result.toolCalls.length === 0) {
           emit(this.event(sessionId, 'done', { message: 'Agent finished without further tool calls.' }));
+          outcomeDetail = result.text || outcomeDetail;
           break;
         }
 
-        input = [...input, ...toolCalls];
+        messages = [...messages, { role: 'assistant', content: result.text, toolCalls: result.toolCalls }];
 
-        for (const toolCall of toolCalls) {
-          const outputItem = await this.executeTool(
+        for (const toolCall of result.toolCalls) {
+          const output = await this.executeTool(
             sessionId,
             workspaceRoot,
             toolCall,
@@ -207,30 +202,33 @@ export class AgentService {
             emit,
             recordStep,
           );
-          input.push(outputItem);
+          messages.push({ role: 'tool', toolCallId: toolCall.id, content: output });
         }
       }
     } catch (err) {
       this.logger.error('Agent loop failed', err as Error);
-      emit(this.event(sessionId, 'error', { message: (err as Error).message }));
+      outcome = 'failed';
+      outcomeDetail = (err as Error).message;
+      emit(this.event(sessionId, 'error', { message: outcomeDetail }));
     } finally {
       this.activeLoops.set(sessionId, false);
+      await this.notifications.notifySessionOutcome(userId, sessionId, outcome, outcomeDetail);
     }
   }
 
   private async executeTool(
     sessionId: string,
     workspaceRoot: string,
-    toolCall: ResponseFunctionToolCall,
+    toolCall: AiToolCall,
     confirmationRequired: boolean,
     emit: (event: AgentActivityEvent) => void,
     recordStep: (type: string, fields: { command?: string; output?: string; exitStatus?: number }) => Promise<void>,
-  ): Promise<ResponseInputItem.FunctionCallOutput> {
+  ): Promise<string> {
     let input: Record<string, unknown>;
     try {
       input = JSON.parse(toolCall.arguments) as Record<string, unknown>;
     } catch {
-      return this.toolResult(toolCall.call_id, 'Error: invalid tool arguments JSON');
+      return 'Error: invalid tool arguments JSON';
     }
 
     try {
@@ -240,27 +238,24 @@ export class AgentService {
           const entries = await readdir(target, { withFileTypes: true });
           const listing = entries.map((e) => (e.isDirectory() ? `${e.name}/` : e.name));
           emit(this.event(sessionId, 'list_directory', { path: input.path, entries: listing }));
-          return this.toolResult(toolCall.call_id, listing.join('\n') || '(empty)');
+          return listing.join('\n') || '(empty)';
         }
 
         case 'read_file': {
           const relPath = String(input.path ?? '');
           if (isSecretLikePath(relPath)) {
             emit(this.event(sessionId, 'read_file', { path: relPath, blocked: true }));
-            return this.toolResult(
-              toolCall.call_id,
-              'Access denied: this file may contain secrets and cannot be read by the agent.',
-            );
+            return 'Access denied: this file may contain secrets and cannot be read by the agent.';
           }
           const target = resolveWithinWorkspace(workspaceRoot, relPath);
           const info = await stat(target);
           if (info.size > MAX_FILE_READ_BYTES) {
-            return this.toolResult(toolCall.call_id, 'File too large to read.');
+            return 'File too large to read.';
           }
           const content = await readFile(target, 'utf-8');
           const safe = redactSecrets(content);
           emit(this.event(sessionId, 'read_file', { path: relPath }));
-          return this.toolResult(toolCall.call_id, safe);
+          return safe;
         }
 
         case 'write_file': {
@@ -268,7 +263,7 @@ export class AgentService {
           const content = String(input.content ?? '');
           if (isSecretLikePath(relPath)) {
             emit(this.event(sessionId, 'proposed_change', { path: relPath, blocked: true }));
-            return this.toolResult(toolCall.call_id, 'Access denied: cannot write to this path.');
+            return 'Access denied: cannot write to this path.';
           }
 
           emit(this.event(sessionId, 'proposed_change', { path: relPath, content }));
@@ -277,7 +272,7 @@ export class AgentService {
           await writeFile(target, content, 'utf-8');
           emit(this.event(sessionId, 'file_written', { path: relPath }));
           await recordStep('file_written', { output: relPath });
-          return this.toolResult(toolCall.call_id, `Wrote ${relPath}`);
+          return `Wrote ${relPath}`;
         }
 
         case 'run_command': {
@@ -286,10 +281,7 @@ export class AgentService {
           if (confirmationRequired && isDestructiveCommand(command)) {
             const approved = await this.requestConfirmation(sessionId, 'command', command, emit);
             if (!approved) {
-              return this.toolResult(
-                toolCall.call_id,
-                'User rejected this command. Do not attempt it again; ask for a different approach.',
-              );
+              return 'User rejected this command. Do not attempt it again; ask for a different approach.';
             }
           }
 
@@ -301,16 +293,16 @@ export class AgentService {
           emit(this.event(sessionId, 'command_output', { command, output: safeOutput, exitCode }));
           await recordStep('command_output', { output: safeOutput, exitStatus: exitCode });
 
-          return this.toolResult(toolCall.call_id, `exit code: ${exitCode}\n\n${safeOutput}`);
+          return `exit code: ${exitCode}\n\n${safeOutput}`;
         }
 
         default:
-          return this.toolResult(toolCall.call_id, `Unknown tool: ${toolCall.name}`);
+          return `Unknown tool: ${toolCall.name}`;
       }
     } catch (err) {
       const message = (err as Error).message;
       emit(this.event(sessionId, 'error', { message, tool: toolCall.name }));
-      return this.toolResult(toolCall.call_id, `Error: ${message}`);
+      return `Error: ${message}`;
     }
   }
 
@@ -366,10 +358,6 @@ export class AgentService {
       shell.write(`${command}\r`);
       shell.write('exit $LASTEXITCODE\r');
     });
-  }
-
-  private toolResult(callId: string, output: string): ResponseInputItem.FunctionCallOutput {
-    return { type: 'function_call_output', call_id: callId, output };
   }
 
   private event(

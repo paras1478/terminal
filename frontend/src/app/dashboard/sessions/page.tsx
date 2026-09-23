@@ -34,8 +34,8 @@ export default async function SessionsPage({
     <>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-100">Sessions</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold tracking-tight text-primary">Sessions</h1>
+          <p className="mt-1 text-sm text-faint">
             All agent sessions, running and completed.
           </p>
         </div>
@@ -54,7 +54,7 @@ export default async function SessionsPage({
         <>
           <SessionsTable initialItems={data.items} />
           {data.items.length > 0 && (
-            <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-xs text-slate-500">
+            <div className="flex items-center justify-between rounded-2xl border border-default panel-bg px-5 py-3 text-xs text-faint">
               <span>
                 Page {data.page} · {data.total} total
               </span>
@@ -62,7 +62,7 @@ export default async function SessionsPage({
                 {page > 1 && (
                   <Link
                     href={`/dashboard/sessions?page=${page - 1}`}
-                    className="rounded-lg border border-white/10 px-3 py-1.5 text-slate-300 hover:border-white/20"
+                    className="rounded-lg border border-default px-3 py-1.5 text-tertiary hover:border-strong"
                   >
                     Previous
                   </Link>
@@ -70,7 +70,7 @@ export default async function SessionsPage({
                 {page * data.pageSize < data.total && (
                   <Link
                     href={`/dashboard/sessions?page=${page + 1}`}
-                    className="rounded-lg border border-white/10 px-3 py-1.5 text-slate-300 hover:border-white/20"
+                    className="rounded-lg border border-default px-3 py-1.5 text-tertiary hover:border-strong"
                   >
                     Next
                   </Link>

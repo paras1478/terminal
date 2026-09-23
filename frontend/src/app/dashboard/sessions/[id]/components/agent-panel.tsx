@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import { env } from "@/lib/env";
+import { showSessionNotification } from "@/lib/notifications/show-notification";
+import { useToast } from "@/components/toast/toast-provider";
 
 type ActivityType =
   | "thinking"
@@ -31,9 +33,13 @@ interface PendingConfirmation {
 export function AgentPanel({
   sessionId,
   accessToken,
+  notifyOnCompletion = true,
+  notifyOnFailure = true,
 }: {
   sessionId: string;
   accessToken: string;
+  notifyOnCompletion?: boolean;
+  notifyOnFailure?: boolean;
 }) {
   const socketRef = useRef<Socket | null>(null);
   const [goal, setGoal] = useState("");
@@ -41,6 +47,7 @@ export function AgentPanel({
   const [activity, setActivity] = useState<ActivityEvent[]>([]);
   const [pendingConfirmation, setPendingConfirmation] = useState<PendingConfirmation | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const socket = io(`${env.NEXT_PUBLIC_API_URL}/agent`, {
@@ -59,8 +66,21 @@ export function AgentPanel({
           description: String(event.payload.description),
         });
       }
-      if (event.type === "done" || event.type === "error") {
+      if (event.type === "done") {
         setRunning(false);
+        if (notifyOnCompletion) {
+          const message = String(event.payload.message ?? "Task completed.");
+          showToast(message, "success");
+          void showSessionNotification("Task completed", message);
+        }
+      }
+      if (event.type === "error") {
+        setRunning(false);
+        if (notifyOnFailure) {
+          const message = String(event.payload.message ?? "Task failed.");
+          showToast(message, "error");
+          void showSessionNotification("Task failed", message);
+        }
       }
     });
 
@@ -76,7 +96,7 @@ export function AgentPanel({
     return () => {
       socket.disconnect();
     };
-  }, [sessionId, accessToken]);
+  }, [sessionId, accessToken, notifyOnCompletion, notifyOnFailure, showToast]);
 
   useEffect(() => {
     feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight });
@@ -104,9 +124,9 @@ export function AgentPanel({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl">
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-        <h2 className="font-semibold text-slate-100">AI Agent</h2>
+    <div className="overflow-hidden rounded-2xl border border-default panel-bg backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-default px-4 py-3">
+        <h2 className="font-semibold text-primary">AI Agent</h2>
         <div className="flex gap-2">
           {running ? (
             <button
@@ -136,13 +156,13 @@ export function AgentPanel({
           disabled={running}
           rows={2}
           placeholder="e.g. Install dependencies, run the dev server, and fix any startup errors"
-          className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40 disabled:opacity-50"
+          className="w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40 disabled:opacity-50"
         />
 
         {pendingConfirmation && (
           <div className="rounded-lg border border-amber-400/30 bg-amber-400/10 p-3">
             <p className="text-xs font-medium text-amber-300">Confirmation required</p>
-            <p className="mt-1 break-all font-mono text-xs text-slate-200">
+            <p className="mt-1 break-all font-mono text-xs text-secondary">
               {pendingConfirmation.description}
             </p>
             <div className="mt-2 flex gap-2">
@@ -166,10 +186,10 @@ export function AgentPanel({
 
         <div
           ref={feedRef}
-          className="h-[360px] space-y-2 overflow-y-auto rounded-lg border border-white/10 bg-[#0a0c12]/90 p-3 font-mono text-xs"
+          className="h-[360px] space-y-2 overflow-y-auto rounded-lg border border-default surface-bg/90 p-3 font-mono text-xs"
         >
           {activity.length === 0 && (
-            <p className="text-slate-600">No activity yet. Enter a goal and click Run.</p>
+            <p className="text-faint">No activity yet. Enter a goal and click Run.</p>
           )}
           {activity.map((event, i) => (
             <ActivityLine key={i} event={event} />
@@ -183,7 +203,7 @@ export function AgentPanel({
 function ActivityLine({ event }: { event: ActivityEvent }) {
   switch (event.type) {
     case "thinking":
-      return <p className="text-slate-400">{String(event.payload.text)}</p>;
+      return <p className="text-muted">{String(event.payload.text)}</p>;
     case "list_directory":
       return <p className="text-cyan-400">$ ls {String(event.payload.path)}</p>;
     case "read_file":
@@ -201,7 +221,7 @@ function ActivityLine({ event }: { event: ActivityEvent }) {
             {String(event.payload.path)}
           </p>
           {typeof event.payload.content === "string" && (
-            <pre className="mt-1 max-h-32 overflow-y-auto whitespace-pre-wrap text-slate-400">
+            <pre className="mt-1 max-h-32 overflow-y-auto whitespace-pre-wrap text-muted">
               {event.payload.content.slice(0, 2000)}
             </pre>
           )}
@@ -210,10 +230,10 @@ function ActivityLine({ event }: { event: ActivityEvent }) {
     case "file_written":
       return <p className="text-emerald-400">✓ wrote {String(event.payload.path)}</p>;
     case "command":
-      return <p className="text-slate-200">$ {String(event.payload.command)}</p>;
+      return <p className="text-secondary">$ {String(event.payload.command)}</p>;
     case "command_output":
       return (
-        <pre className="whitespace-pre-wrap pl-3 text-slate-500">
+        <pre className="whitespace-pre-wrap pl-3 text-faint">
           {String(event.payload.output).slice(0, 4000)}
         </pre>
       );

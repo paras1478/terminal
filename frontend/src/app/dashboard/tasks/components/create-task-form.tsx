@@ -18,7 +18,7 @@ export function CreateTaskForm({ workspaces }: { workspaces: Workspace[] }) {
       )}
 
       <div>
-        <label htmlFor="goal" className="block text-xs font-medium text-slate-400">
+        <label htmlFor="goal" className="block text-xs font-medium text-muted">
           Goal
         </label>
         <input
@@ -27,7 +27,7 @@ export function CreateTaskForm({ workspaces }: { workspaces: Workspace[] }) {
           type="text"
           required
           maxLength={200}
-          className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
         />
         {state.fieldErrors?.goal && (
           <p className="mt-1 text-xs text-red-300">{state.fieldErrors.goal[0]}</p>
@@ -35,7 +35,7 @@ export function CreateTaskForm({ workspaces }: { workspaces: Workspace[] }) {
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-xs font-medium text-slate-400">
+        <label htmlFor="description" className="block text-xs font-medium text-muted">
           Description
         </label>
         <textarea
@@ -44,7 +44,7 @@ export function CreateTaskForm({ workspaces }: { workspaces: Workspace[] }) {
           required
           maxLength={2000}
           rows={3}
-          className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
         />
         {state.fieldErrors?.description && (
           <p className="mt-1 text-xs text-red-300">{state.fieldErrors.description[0]}</p>
@@ -52,14 +52,14 @@ export function CreateTaskForm({ workspaces }: { workspaces: Workspace[] }) {
       </div>
 
       <div>
-        <label htmlFor="workspaceId" className="block text-xs font-medium text-slate-400">
+        <label htmlFor="workspaceId" className="block text-xs font-medium text-muted">
           Workspace
         </label>
         <select
           id="workspaceId"
           name="workspaceId"
           required
-          className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
         >
           <option value="">Select a workspace</option>
           {workspaces.map((w) => (
@@ -75,14 +75,14 @@ export function CreateTaskForm({ workspaces }: { workspaces: Workspace[] }) {
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label htmlFor="priority" className="block text-xs font-medium text-slate-400">
+          <label htmlFor="priority" className="block text-xs font-medium text-muted">
             Priority
           </label>
           <select
             id="priority"
             name="priority"
             defaultValue="MEDIUM"
-            className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+            className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
           >
             <option value="LOW">Low</option>
             <option value="MEDIUM">Medium</option>
@@ -92,20 +92,20 @@ export function CreateTaskForm({ workspaces }: { workspaces: Workspace[] }) {
         </div>
 
         <div>
-          <label htmlFor="schedule" className="block text-xs font-medium text-slate-400">
+          <label htmlFor="schedule" className="block text-xs font-medium text-muted">
             Schedule (optional)
           </label>
           <input
             id="schedule"
             name="schedule"
             type="datetime-local"
-            className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+            className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="tags" className="block text-xs font-medium text-slate-400">
+        <label htmlFor="tags" className="block text-xs font-medium text-muted">
           Tags (comma separated, optional)
         </label>
         <input
@@ -113,7 +113,7 @@ export function CreateTaskForm({ workspaces }: { workspaces: Workspace[] }) {
           name="tags"
           type="text"
           placeholder="bug-fix, auth"
-          className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
         />
       </div>
 

@@ -20,6 +20,19 @@ export const metadata: Metadata = {
   description: "AI-powered terminal dashboard",
 };
 
+const THEME_INIT_SCRIPT = `
+(function () {
+  try {
+    var stored = window.localStorage.getItem("theme-preference");
+    var theme = stored === "light" || stored === "dark" ? stored : null;
+    if (!theme) {
+      theme = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    }
+    document.documentElement.setAttribute("data-theme", theme);
+  } catch (e) {}
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,6 +43,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

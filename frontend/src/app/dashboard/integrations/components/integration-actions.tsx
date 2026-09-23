@@ -34,7 +34,7 @@ export function IntegrationActions({
         }}
         className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition disabled:opacity-50 ${
           isConnected
-            ? "border-white/10 bg-white/[0.03] text-slate-300 hover:border-white/20"
+            ? "border-default panel-bg text-tertiary hover:border-strong"
             : "border-emerald-400/30 bg-emerald-400/10 text-emerald-300 hover:bg-emerald-400/20"
         }`}
       >
