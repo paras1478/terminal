@@ -476,4 +476,35 @@ export function validateApiKey(
   });
 }
 
+export type NotificationType = "SESSION_COMPLETED" | "SESSION_FAILED";
+
+export interface AppNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  sessionId: string | null;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface NotificationsListResponse {
+  items: AppNotification[];
+  unreadCount: number;
+}
+
+export function getNotifications(): Promise<NotificationsListResponse> {
+  return request<NotificationsListResponse>("/notifications");
+}
+
+export function markNotificationRead(id: string): Promise<AppNotification> {
+  return request<AppNotification>(`/notifications/${encodeURIComponent(id)}/read`, {
+    method: "PATCH",
+  });
+}
+
+export function markAllNotificationsRead(): Promise<{ count: number }> {
+  return request<{ count: number }>("/notifications/read-all", { method: "PATCH" });
+}
+
 export { ApiError };

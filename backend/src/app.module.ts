@@ -25,6 +25,7 @@ import { SettingsModule } from './settings/settings.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { AgentModule } from './agent/agent.module';
 import { FilesModule } from './files/files.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { FilesModule } from './files/files.module';
     UploadsModule,
     AgentModule,
     FilesModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -72,6 +72,7 @@ export function AgentPanel({
           const message = String(event.payload.message ?? "Task completed.");
           showToast(message, "success");
           void showSessionNotification("Task completed", message);
+          window.dispatchEvent(new Event("notifications:refresh"));
         }
       }
       if (event.type === "error") {
@@ -80,6 +81,7 @@ export function AgentPanel({
           const message = String(event.payload.message ?? "Task failed.");
           showToast(message, "error");
           void showSessionNotification("Task failed", message);
+          window.dispatchEvent(new Event("notifications:refresh"));
         }
       }
     });

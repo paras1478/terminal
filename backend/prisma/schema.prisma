@@ -24,6 +24,7 @@ model User {
   logs         CommandLog[]
   integrations WorkspaceIntegration[]
   settings     UserSettings?
+  notifications Notification[]
 
   @@map("users")
 }
@@ -299,4 +300,24 @@ model UserSettings {
   updatedAt             DateTime @updatedAt
 
   @@map("user_settings")
+}
+
+enum NotificationType {
+  SESSION_COMPLETED
+  SESSION_FAILED
+}
+
+model Notification {
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String           @db.ObjectId
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  sessionId String?          @db.ObjectId
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, createdAt])
+  @@map("notifications")
 }

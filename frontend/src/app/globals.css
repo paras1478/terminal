@@ -86,3 +86,19 @@ body {
 .text-tertiary { color: var(--text-tertiary); }
 .text-muted { color: var(--text-muted); }
 .text-faint { color: var(--text-faint); }
+
+@keyframes notification-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-notification-dropdown {
+  animation: notification-dropdown-in 0.15s ease-out;
+  transform-origin: top right;
+}

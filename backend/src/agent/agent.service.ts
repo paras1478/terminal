@@ -135,8 +135,8 @@ export class AgentService {
         err instanceof AiProviderError
           ? err.message
           : 'Failed to resolve the selected AI model/provider.';
-      emit(this.event(sessionId, 'error', { message }));
       await this.notifications.notifySessionOutcome(userId, sessionId, 'failed', message);
+      emit(this.event(sessionId, 'error', { message }));
       return;
     }
 
@@ -162,14 +162,15 @@ export class AgentService {
     const maxRuntimeMs = userSettings.maxRuntimeSeconds * 1000;
 
     let step = 0;
-    let outcome: 'completed' | 'failed' = 'completed';
+    let outcome: 'completed' | 'failed' | null = null;
     let outcomeDetail = 'The agent finished the requested task.';
+    let outcomeEvent: { type: 'done' | 'error'; payload: Record<string, unknown> } | null = null;
     try {
       while (this.isRunning(sessionId) && step < maxSteps) {
         if (Date.now() - startedAt > maxRuntimeMs) {
-          emit(this.event(sessionId, 'error', { message: 'Max runtime exceeded for this task.' }));
           outcome = 'failed';
           outcomeDetail = 'Max runtime exceeded for this task.';
+          outcomeEvent = { type: 'error', payload: { message: outcomeDetail } };
           break;
         }
         step += 1;
@@ -186,8 +187,12 @@ export class AgentService {
         }
 
         if (result.toolCalls.length === 0) {
-          emit(this.event(sessionId, 'done', { message: 'Agent finished without further tool calls.' }));
+          outcome = 'completed';
           outcomeDetail = result.text || outcomeDetail;
+          outcomeEvent = {
+            type: 'done',
+            payload: { message: 'Agent finished without further tool calls.' },
+          };
           break;
         }
 
@@ -209,10 +214,18 @@ export class AgentService {
       this.logger.error('Agent loop failed', err as Error);
       outcome = 'failed';
       outcomeDetail = (err as Error).message;
-      emit(this.event(sessionId, 'error', { message: outcomeDetail }));
+      outcomeEvent = { type: 'error', payload: { message: outcomeDetail } };
     } finally {
       this.activeLoops.set(sessionId, false);
-      await this.notifications.notifySessionOutcome(userId, sessionId, outcome, outcomeDetail);
+      if (outcome) {
+        // Persist (and email, if enabled) the notification before telling the client the
+        // run is over, so the bell's unread count is already correct by the time the
+        // frontend reacts to the socket event.
+        await this.notifications.notifySessionOutcome(userId, sessionId, outcome, outcomeDetail);
+      }
+      if (outcomeEvent) {
+        emit(this.event(sessionId, outcomeEvent.type, outcomeEvent.payload));
+      }
     }
   }
 

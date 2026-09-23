@@ -1,15 +1,16 @@
 "use client";
 
 /**
- * Client-safe settings API calls. dashboard.ts's request() helper reads the
- * access token via next/headers (server-only), so it cannot be called from a
- * client component. These take the token as an explicit argument instead,
- * following the same pattern session-terminal.tsx uses for its socket
- * connection (server component fetches the token, passes it down as a prop).
+ * Client-safe API calls (settings + notifications). dashboard.ts's request()
+ * helper reads the access token via next/headers (server-only), so it cannot
+ * be called from a client component. These take the token as an explicit
+ * argument instead, following the same pattern session-terminal.tsx uses for
+ * its socket connection (server component fetches the token, passes it down
+ * as a prop).
  */
 
 import { env } from "@/lib/env";
-import type { Settings } from "@/lib/api/dashboard";
+import type { AppNotification, NotificationsListResponse, Settings } from "@/lib/api/dashboard";
 
 async function parseErrorMessage(response: Response): Promise<string> {
   try {
@@ -59,4 +60,45 @@ export async function validateApiKeyClient(
     throw new Error(await parseErrorMessage(response));
   }
   return (await response.json()) as { valid: boolean; message?: string };
+}
+
+export async function getNotificationsClient(accessToken: string): Promise<NotificationsListResponse> {
+  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/notifications`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await parseErrorMessage(response));
+  }
+  return (await response.json()) as NotificationsListResponse;
+}
+
+export async function markNotificationReadClient(
+  accessToken: string,
+  id: string,
+): Promise<AppNotification> {
+  const response = await fetch(
+    `${env.NEXT_PUBLIC_API_URL}/notifications/${encodeURIComponent(id)}/read`,
+    {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
+  if (!response.ok) {
+    throw new Error(await parseErrorMessage(response));
+  }
+  return (await response.json()) as AppNotification;
+}
+
+export async function markAllNotificationsReadClient(
+  accessToken: string,
+): Promise<{ count: number }> {
+  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/notifications/read-all`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!response.ok) {
+    throw new Error(await parseErrorMessage(response));
+  }
+  return (await response.json()) as { count: number };
 }

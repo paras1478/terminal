@@ -1,8 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Notification, NotificationType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from './email.service';
 
 export type SessionOutcome = 'completed' | 'failed';
+
+const OUTCOME_TO_TYPE: Record<SessionOutcome, NotificationType> = {
+  completed: 'SESSION_COMPLETED',
+  failed: 'SESSION_FAILED',
+};
 
 @Injectable()
 export class NotificationsService {
@@ -38,11 +44,21 @@ export class NotificationsService {
 
       this.logger.log(`Session ${sessionId} ${outcome} — dispatching notification to user ${userId}`);
 
+      const title = outcome === 'completed' ? 'Task completed' : 'Task failed';
+      await this.prisma.notification.create({
+        data: {
+          userId,
+          type: OUTCOME_TO_TYPE[outcome],
+          title,
+          message: detail,
+          sessionId,
+        },
+      });
+
       if (settings.notifyByEmail) {
-        const subject = outcome === 'completed' ? 'Task completed' : 'Task failed';
         const result = await this.email.send(
           user.email,
-          `${subject} — session ${sessionId}`,
+          `${title} — session ${sessionId}`,
           detail,
         );
         if (!result.sent) {
@@ -52,5 +68,32 @@ export class NotificationsService {
     } catch (err) {
       this.logger.error(`Failed to dispatch notification for session ${sessionId}`, err as Error);
     }
+  }
+
+  async list(userId: string, limit = 50): Promise<Notification[]> {
+    return this.prisma.notification.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+  }
+
+  async unreadCount(userId: string): Promise<number> {
+    return this.prisma.notification.count({ where: { userId, read: false } });
+  }
+
+  async markRead(userId: string, id: string): Promise<Notification> {
+    const notification = await this.prisma.notification.findFirst({ where: { id, userId } });
+    if (!notification) {
+      throw new NotFoundException('Notification not found');
+    }
+    return this.prisma.notification.update({ where: { id }, data: { read: true } });
+  }
+
+  async markAllRead(userId: string): Promise<{ count: number }> {
+    return this.prisma.notification.updateMany({
+      where: { userId, read: false },
+      data: { read: true },
+    });
   }
 }
