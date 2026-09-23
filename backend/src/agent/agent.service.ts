@@ -333,8 +333,21 @@ export class AgentService {
     command: string,
   ): Promise<{ output: string; exitCode: number }> {
     return new Promise((resolve) => {
+      let pty: typeof import('node-pty');
+      try {
+        pty = loadPty();
+      } catch (err) {
+        this.logger.error('node-pty is unavailable in this environment', err as Error);
+        resolve({
+          output:
+            '[Shell command execution is unavailable in this environment. This feature requires a host with native PTY support.]',
+          exitCode: 1,
+        });
+        return;
+      }
+
       let output = '';
-      const shell = loadPty().spawn(SHELL, [], { name: 'xterm-color', cols: 100, rows: 30, cwd });
+      const shell = pty.spawn(SHELL, [], { name: 'xterm-color', cols: 100, rows: 30, cwd });
 
       const timeout = setTimeout(() => {
         shell.kill();

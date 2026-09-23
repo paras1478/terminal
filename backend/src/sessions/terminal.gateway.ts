@@ -77,7 +77,20 @@ export class TerminalGateway implements OnGatewayConnection, OnGatewayDisconnect
         return;
       }
 
-      const shell = loadPty().spawn(SHELL, [], {
+      let pty: typeof import('node-pty');
+      try {
+        pty = loadPty();
+      } catch (err) {
+        this.logger.error('node-pty is unavailable in this environment', err as Error);
+        client.emit(
+          'terminal:error',
+          'Terminal sessions are unavailable in this environment (no native PTY support).',
+        );
+        client.disconnect(true);
+        return;
+      }
+
+      const shell = pty.spawn(SHELL, [], {
         name: 'xterm-color',
         cols: 80,
         rows: 24,
