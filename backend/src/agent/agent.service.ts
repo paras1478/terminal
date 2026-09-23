@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import { existsSync } from 'fs';
 import { readFile, writeFile, readdir, stat } from 'fs/promises';
 import { PrismaService } from '../prisma/prisma.service';
 import { SettingsService } from '../settings/settings.service';
@@ -143,6 +144,32 @@ export class AgentService {
     const { provider, apiKey } = resolved;
     const model = userSettings.modelSelection;
     const workspaceRoot = session.workspace.pathOrRepoUrl;
+
+    // The agent's file/shell tools (list_directory, read_file, write_file, run_command)
+    // execute against THIS PROCESS's filesystem. That's only correct when the backend
+    // happens to run on the same machine as the workspace (e.g. local development).
+    // On a remote deployment, the workspace path only exists on the user's own
+    // machine, so fail clearly up front rather than letting every tool call fail
+    // one at a time with a confusing "not found" error.
+    // TODO: run these tools in Electron (like the interactive terminal already does,
+    // see session-terminal.tsx) via an IPC/RPC bridge back to this loop, so the
+    // agent can operate on local projects even when the backend is remote.
+    if (!existsSync(workspaceRoot)) {
+      emit(
+        this.event(sessionId, 'error', {
+          message:
+            'This backend cannot access your local project files, so the AI agent cannot run here. ' +
+            'Agent file/shell tools are only available when the backend runs on the same machine as your project.',
+        }),
+      );
+      await this.notifications.notifySessionOutcome(
+        userId,
+        sessionId,
+        'failed',
+        'Agent tools are unavailable: the backend cannot access the local workspace.',
+      );
+      return;
+    }
 
     this.activeLoops.set(sessionId, true);
     let nextOrder = (await this.prisma.sessionStep.count({ where: { sessionId } })) + 1;

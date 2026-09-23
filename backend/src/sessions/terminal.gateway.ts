@@ -70,9 +70,19 @@ export class TerminalGateway implements OnGatewayConnection, OnGatewayDisconnect
         return;
       }
 
+      // The workspace path is meaningful only on the machine that created the
+      // session. This gateway is a fallback for browser-only clients (the desktop
+      // app runs its own local terminal via Electron's IPC — see
+      // frontend/src/app/dashboard/sessions/[id]/components/session-terminal.tsx)
+      // and only works if this backend process happens to share a filesystem
+      // with that workspace (e.g. local development). On a remote deployment,
+      // it correctly cannot see the user's local files.
       const cwd = session.workspace.pathOrRepoUrl;
       if (!existsSync(cwd)) {
-        client.emit('terminal:error', `Workspace path does not exist: ${cwd}`);
+        client.emit(
+          'terminal:error',
+          'This backend cannot access your local project files. Use the desktop app for a live terminal, or run the backend on the same machine as your project.',
+        );
         client.disconnect(true);
         return;
       }

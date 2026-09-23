@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ApiError, getSession, getSettings, type SessionStatus } from "@/lib/api/dashboard";
 import { getAccessToken } from "@/lib/auth/session";
-import { SessionTerminal } from "./components/session-terminal";
 import { AgentPanel } from "./components/agent-panel";
 import { SessionWorkspace } from "./components/session-workspace";
 
@@ -110,7 +109,11 @@ export default async function SessionDetailPage({
 
           {accessToken && (
             <>
-              <SessionWorkspace sessionId={session.id} accessToken={accessToken} />
+              <SessionWorkspace
+                sessionId={session.id}
+                workspacePath={session.workspacePath}
+                accessToken={accessToken}
+              />
               <AgentPanel
                 sessionId={session.id}
                 accessToken={accessToken}

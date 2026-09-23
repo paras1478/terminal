@@ -3,7 +3,10 @@ import { IsIn, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validat
 
 export class CreateSessionDto {
   @ApiProperty({
-    description: 'Absolute path to the project on the machine running the agent',
+    description:
+      "Workspace identifier from the client's own machine (a local folder path in " +
+      'the desktop app, or a repo URL). Not validated or accessed by the backend — ' +
+      "it is only ever resolved locally, by Electron, against the user's filesystem.",
   })
   @IsString()
   @IsNotEmpty()

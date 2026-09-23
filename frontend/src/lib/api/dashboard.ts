@@ -76,6 +76,7 @@ export interface SessionDetail {
   id: string;
   workspaceId: string;
   workspaceName: string;
+  workspacePath: string;
   goal: string;
   status: SessionStatus;
   plan: PlanStep[];

@@ -11,9 +11,11 @@ const DEFAULT_EXPLORER_WIDTH = 260;
 
 export function SessionWorkspace({
   sessionId,
+  workspacePath,
   accessToken,
 }: {
   sessionId: string;
+  workspacePath: string;
   accessToken: string;
 }) {
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
@@ -102,7 +104,11 @@ export function SessionWorkspace({
             <CodeViewer sessionId={sessionId} path={selectedPath} accessToken={accessToken} />
           </div>
           <div className={activeTab === "terminal" ? "h-full" : "hidden"}>
-            <SessionTerminal sessionId={sessionId} accessToken={accessToken} />
+            <SessionTerminal
+              sessionId={sessionId}
+              workspacePath={workspacePath}
+              accessToken={accessToken}
+            />
           </div>
         </div>
       </div>

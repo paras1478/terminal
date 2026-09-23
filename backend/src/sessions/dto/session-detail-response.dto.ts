@@ -30,6 +30,13 @@ export class SessionDetailResponseDto {
   @ApiProperty()
   workspaceName!: string;
 
+  @ApiProperty({
+    description:
+      "The workspace identifier from the client's own machine (see CreateSessionDto.path). " +
+      'The backend never resolves this against a filesystem — only the local desktop app does.',
+  })
+  workspacePath!: string;
+
   @ApiProperty()
   goal!: string;
 

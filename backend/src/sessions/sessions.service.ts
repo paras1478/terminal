@@ -1,6 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { existsSync, statSync } from 'fs';
-import { isAbsolute } from 'path';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AgentGateway } from '../agent/agent.gateway';
 import { ListSessionsQueryDto } from './dto/list-sessions-query.dto';
@@ -68,17 +66,14 @@ export class SessionsService {
     userId: string,
     dto: CreateSessionDto,
   ): Promise<SessionDetailResponseDto> {
+    // dto.path is a label supplied by the client identifying a workspace on the
+    // USER'S OWN machine (a local folder in Electron, or a repo URL). The backend
+    // never validates it against a filesystem — it may be running on a different
+    // machine (e.g. Render) entirely and has no way to see the user's local disk.
+    // All actual file I/O and PTY execution happen in Electron, which receives
+    // this same identifier back and resolves it locally. See ADR note in
+    // electron/src/main.js's workspace IPC handlers.
     const normalizedPath = dto.path.trim().replace(/[\\/]+$/, '');
-
-    if (!isAbsolute(normalizedPath)) {
-      throw new BadRequestException('Project location must be an absolute path');
-    }
-
-    if (!existsSync(normalizedPath) || !statSync(normalizedPath).isDirectory()) {
-      throw new BadRequestException(
-        `Project folder does not exist on this machine: ${normalizedPath}`,
-      );
-    }
 
     const workspaceName =
       dto.name?.trim() || normalizedPath.split(/[\\/]/).pop() || normalizedPath;
@@ -110,6 +105,7 @@ export class SessionsService {
       id: session.id,
       workspaceId: session.workspaceId,
       workspaceName: session.workspace.name,
+      workspacePath: session.workspace.pathOrRepoUrl,
       goal: session.goal,
       status: session.status,
       plan: session.plan,
@@ -158,6 +154,7 @@ export class SessionsService {
       id: session.id,
       workspaceId: session.workspaceId,
       workspaceName: session.workspace.name,
+      workspacePath: session.workspace.pathOrRepoUrl,
       goal: session.goal,
       status: session.status,
       plan: session.plan,
