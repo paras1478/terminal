@@ -8,7 +8,6 @@ import type {
 } from 'openai/resources/responses/responses';
 import { randomUUID } from 'crypto';
 import { readFile, writeFile, readdir, stat } from 'fs/promises';
-import * as pty from 'node-pty';
 import { PrismaService } from '../prisma/prisma.service';
 import { SettingsService } from '../settings/settings.service';
 import { isDestructiveCommand } from './destructive-command.util';
@@ -20,6 +19,14 @@ import {
 import { AgentActivityEvent, PendingConfirmation } from './agent.types';
 
 const SHELL = process.platform === 'win32' ? 'powershell.exe' : 'bash';
+
+/** node-pty ships a native binding; require it lazily so an environment where it
+ * fails to load (e.g. a serverless runtime) doesn't crash the whole app at import time. */
+function loadPty(): typeof import('node-pty') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  return require('node-pty');
+}
+
 const MAX_FILE_READ_BYTES = 200_000;
 const COMMAND_TIMEOUT_MS = 120_000;
 const MODEL = 'gpt-5.1';
@@ -327,7 +334,7 @@ export class AgentService {
   ): Promise<{ output: string; exitCode: number }> {
     return new Promise((resolve) => {
       let output = '';
-      const shell = pty.spawn(SHELL, [], { name: 'xterm-color', cols: 100, rows: 30, cwd });
+      const shell = loadPty().spawn(SHELL, [], { name: 'xterm-color', cols: 100, rows: 30, cwd });
 
       const timeout = setTimeout(() => {
         shell.kill();

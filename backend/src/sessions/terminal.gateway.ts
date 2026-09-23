@@ -12,12 +12,18 @@ import {
 } from '@nestjs/websockets';
 import { existsSync } from 'fs';
 import type { IPty } from 'node-pty';
-import * as pty from 'node-pty';
 import { Server, Socket } from 'socket.io';
 import { JwtPayload } from '../auth/types/jwt-payload.type';
 import { PrismaService } from '../prisma/prisma.service';
 
 const SHELL = process.platform === 'win32' ? 'powershell.exe' : 'bash';
+
+/** node-pty ships a native binding; require it lazily so an environment where it
+ * fails to load (e.g. a serverless runtime) doesn't crash the whole app at import time. */
+function loadPty(): typeof import('node-pty') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  return require('node-pty');
+}
 
 @WebSocketGateway({
   namespace: 'terminal',
@@ -71,7 +77,7 @@ export class TerminalGateway implements OnGatewayConnection, OnGatewayDisconnect
         return;
       }
 
-      const shell = pty.spawn(SHELL, [], {
+      const shell = loadPty().spawn(SHELL, [], {
         name: 'xterm-color',
         cols: 80,
         rows: 24,

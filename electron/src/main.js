@@ -1,7 +1,7 @@
 const { app, BrowserWindow, dialog, ipcMain } = require("electron");
 const path = require("path");
 
-const APP_URL = process.env.APP_URL || "http://localhost:3001";
+const APP_URL = process.env.APP_URL || "https://terminal-1-riuw.onrender.com";
 
 function createWindow() {
   const win = new BrowserWindow({
