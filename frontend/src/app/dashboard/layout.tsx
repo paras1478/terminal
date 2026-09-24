@@ -20,15 +20,28 @@ export default async function DashboardLayout({
   // `user` cookie. GET /auth/me queries the database on every request (via
   // JwtStrategy.validate), so a token whose user was deleted from MongoDB is
   // rejected here with 401 even though the JWT itself hasn't expired yet.
+  //
+  // redirect() throws internally (NEXT_REDIRECT) and Next.js explicitly
+  // requires it be called OUTSIDE any try/catch — calling it inside a catch
+  // block risks the thrown redirect being treated as a real unhandled error
+  // (a 401 rendering as a generic server error page) instead of navigating.
+  // So the catch here only classifies the error and clears cookies; the
+  // actual redirect happens after the try/catch has fully exited.
   let user;
+  let shouldRedirectToLogin = false;
   try {
     user = await fetchCurrentUser(accessToken);
   } catch (err) {
     if (err instanceof ApiError && err.status === 401) {
       await destroySession();
-      redirect("/login");
+      shouldRedirectToLogin = true;
+    } else {
+      throw err;
     }
-    throw err;
+  }
+
+  if (shouldRedirectToLogin || !user) {
+    redirect("/login");
   }
 
   let initialTheme: ThemePreference = "dark";
