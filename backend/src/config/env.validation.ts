@@ -35,4 +35,11 @@ export const envValidationSchema = Joi.object({
   GOOGLE_CLIENT_ID: Joi.string().optional(),
   GOOGLE_CLIENT_SECRET: Joi.string().optional(),
   GOOGLE_CALLBACK_URL: Joi.string().optional(),
+
+  // Comma-separated extra frontend origins the OAuth callback may redirect
+  // to (beyond CORS_ORIGIN), when requested via /auth/google?returnTo=<origin>
+  // and that origin is in this list. See auth.controller.ts's
+  // allowedReturnOrigins. Used for local/Electron dev against this same
+  // deployed backend — never a substitute for CORS_ORIGIN in production.
+  ADDITIONAL_OAUTH_RETURN_ORIGINS: Joi.string().optional(),
 });

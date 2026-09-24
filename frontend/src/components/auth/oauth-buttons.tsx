@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@/lib/env";
+import { API_BASE_URL, APP_URL } from "@/lib/env";
 
 /**
  * Full-page navigation to the backend's OAuth entrypoint
@@ -6,12 +6,26 @@ import { API_BASE_URL } from "@/lib/env";
  * Google). This must be a plain link, not fetch/XHR: the whole point is a
  * top-level browser redirect through Google's consent screen and back to
  * /auth/callback.
+ *
+ * Passes this app's own known origin (APP_URL, from NEXT_PUBLIC_APP_URL) as
+ * ?returnTo=, which the backend threads through Google's OAuth `state`
+ * parameter and validates against an allowlist before using it as the
+ * final redirect target (see GoogleAuthGuard / AuthController). This lets
+ * one deployed backend correctly return local/Electron dev clients to
+ * their own origin instead of always redirecting to the production
+ * frontend — without needing a server-only secret or CORS_ORIGIN
+ * flip-flopping. Omitted when APP_URL isn't set (e.g. in production, where
+ * CORS_ORIGIN alone is already the right target).
  */
 export function OAuthButtons() {
+  const googleLoginUrl = APP_URL
+    ? `${API_BASE_URL}/auth/google?returnTo=${encodeURIComponent(APP_URL)}`
+    : `${API_BASE_URL}/auth/google`;
+
   return (
     <div className="space-y-3">
       <a
-        href={`${API_BASE_URL}/auth/google`}
+        href={googleLoginUrl}
         className="flex w-full items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">

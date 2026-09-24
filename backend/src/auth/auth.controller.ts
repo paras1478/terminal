@@ -22,6 +22,11 @@ import { ExchangeOAuthCodeDto } from './dto/exchange-oauth-code.dto';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { OAuthProfile } from './strategies/oauth-profile.type';
 
+// Frontend origins this backend is allowed to redirect an OAuth login back
+// to. CORS_ORIGIN remains the default/production target; ADDITIONAL_OAUTH_
+// RETURN_ORIGINS (comma-separated) lets local/Electron dev clients opt in
+// via ?returnTo=<origin> on /auth/google (see GoogleAuthGuard) without ever
+// letting an arbitrary attacker-supplied URL become a redirect target.
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -36,26 +41,46 @@ export class AuthController {
     return this.configService.get<string>('CORS_ORIGIN') ?? 'https://terminal-1-riuw.onrender.com';
   }
 
+  private get allowedReturnOrigins(): string[] {
+    const extra = this.configService.get<string>('ADDITIONAL_OAUTH_RETURN_ORIGINS') ?? '';
+    const origins = extra
+      .split(',')
+      .map((o) => o.trim())
+      .filter(Boolean);
+    return [this.frontendOrigin, ...origins];
+  }
+
+  /** Validates a `state`-carried return origin against the allowlist, falling back to frontendOrigin. */
+  private resolveReturnOrigin(stateOrigin: unknown): string {
+    if (typeof stateOrigin === 'string' && this.allowedReturnOrigins.includes(stateOrigin)) {
+      return stateOrigin;
+    }
+    return this.frontendOrigin;
+  }
+
   private async redirectWithOAuthResult(
+    req: Request,
     res: Response,
     profile: OAuthProfile | undefined,
   ): Promise<void> {
+    const returnOrigin = this.resolveReturnOrigin(req.query.state);
+
     // TEMPORARY diagnostic logging for the OAuth login failure investigation.
     // Never logs GOOGLE_CLIENT_SECRET, access/refresh tokens, or passwords.
-    this.logger.log(`[oauth] callback reached, frontendOrigin=${this.frontendOrigin}`);
+    this.logger.log(`[oauth] callback reached, returnOrigin=${returnOrigin}`);
 
     if (!profile) {
       this.logger.warn('[oauth] Passport guard produced no profile — Google auth itself did not complete');
-      res.redirect(`${this.frontendOrigin}/login?error=oauth_failed`);
+      res.redirect(`${returnOrigin}/login?error=oauth_failed`);
       return;
     }
     try {
       const code = await this.authService.loginWithOAuth(profile);
-      res.redirect(`${this.frontendOrigin}/auth/callback?code=${encodeURIComponent(code)}`);
+      res.redirect(`${returnOrigin}/auth/callback?code=${encodeURIComponent(code)}`);
     } catch (err) {
       const error = err as Error;
       this.logger.error(`[oauth] redirectWithOAuthResult failed: ${error.name}: ${error.message}`, error.stack);
-      res.redirect(`${this.frontendOrigin}/login?error=oauth_failed`);
+      res.redirect(`${returnOrigin}/login?error=oauth_failed`);
     }
   }
 
@@ -103,6 +128,6 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @ApiExcludeEndpoint()
   async googleCallback(@Req() req: Request, @Res() res: Response): Promise<void> {
-    await this.redirectWithOAuthResult(res, req.user as OAuthProfile | undefined);
+    await this.redirectWithOAuthResult(req, res, req.user as OAuthProfile | undefined);
   }
 }
