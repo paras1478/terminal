@@ -1,4 +1,4 @@
-import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
+import { INestApplication, Logger, RequestMethod, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
@@ -14,6 +14,17 @@ export async function createNestApp(): Promise<INestApplication> {
   app.enableCors({
     origin: process.env.CORS_ORIGIN ?? 'https://terminal-1-riuw.onrender.com',
     credentials: true,
+  });
+
+  // Every HTTP controller route now lives under /api/v1 (e.g. POST /auth/login
+  // becomes POST /api/v1/auth/login). This does NOT affect Socket.IO gateways
+  // (terminal/agent/files) — @nestjs/websockets gateways are not routed
+  // through Nest's HTTP router/setGlobalPrefix at all, so their namespace
+  // URLs (e.g. wss://.../agent) are unchanged.
+  app.setGlobalPrefix('api/v1', {
+    // Keep Swagger's own UI/JSON reachable at its original path instead of
+    // becoming /api/v1/api/docs.
+    exclude: [{ path: 'api/docs', method: RequestMethod.ALL }],
   });
 
   app.useGlobalPipes(

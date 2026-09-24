@@ -9,7 +9,7 @@
  * as a prop).
  */
 
-import { env } from "@/lib/env";
+import { API_BASE_URL } from "@/lib/env";
 import type { AppNotification, NotificationsListResponse, Settings } from "@/lib/api/dashboard";
 
 async function parseErrorMessage(response: Response): Promise<string> {
@@ -31,7 +31,7 @@ async function parseErrorMessage(response: Response): Promise<string> {
 
 export async function deleteApiKeyClient(accessToken: string, provider: string): Promise<Settings> {
   const response = await fetch(
-    `${env.NEXT_PUBLIC_API_URL}/settings/api-keys/${encodeURIComponent(provider)}`,
+    `${API_BASE_URL}/settings/api-keys/${encodeURIComponent(provider)}`,
     {
       method: "DELETE",
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -48,7 +48,7 @@ export async function validateApiKeyClient(
   provider: string,
   apiKey: string,
 ): Promise<{ valid: boolean; message?: string }> {
-  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/settings/api-keys/validate`, {
+  const response = await fetch(`${API_BASE_URL}/settings/api-keys/validate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -63,7 +63,7 @@ export async function validateApiKeyClient(
 }
 
 export async function getNotificationsClient(accessToken: string): Promise<NotificationsListResponse> {
-  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/notifications`, {
+  const response = await fetch(`${API_BASE_URL}/notifications`, {
     headers: { Authorization: `Bearer ${accessToken}` },
     cache: "no-store",
   });
@@ -78,7 +78,7 @@ export async function markNotificationReadClient(
   id: string,
 ): Promise<AppNotification> {
   const response = await fetch(
-    `${env.NEXT_PUBLIC_API_URL}/notifications/${encodeURIComponent(id)}/read`,
+    `${API_BASE_URL}/notifications/${encodeURIComponent(id)}/read`,
     {
       method: "PATCH",
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -93,7 +93,7 @@ export async function markNotificationReadClient(
 export async function markAllNotificationsReadClient(
   accessToken: string,
 ): Promise<{ count: number }> {
-  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/notifications/read-all`, {
+  const response = await fetch(`${API_BASE_URL}/notifications/read-all`, {
     method: "PATCH",
     headers: { Authorization: `Bearer ${accessToken}` },
   });

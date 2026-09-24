@@ -1,4 +1,4 @@
-import { env } from "@/lib/env";
+import { API_BASE_URL } from "@/lib/env";
 import { ApiError } from "@/lib/api/auth";
 import type { FileContent, FileNode } from "@/lib/schemas/files";
 
@@ -28,7 +28,7 @@ async function clientRequest<T>(
     query?: Record<string, unknown>;
   } = {},
 ): Promise<T> {
-  const url = new URL(`${env.NEXT_PUBLIC_API_URL}${path}`);
+  const url = new URL(`${API_BASE_URL}${path}`);
   if (options.query) {
     for (const [key, value] of Object.entries(options.query)) {
       if (value !== undefined && value !== "") {

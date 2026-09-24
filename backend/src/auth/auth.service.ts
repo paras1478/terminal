@@ -6,13 +6,16 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { JwtPayload } from './types/jwt-payload.type';
+import { OAuthProfile } from './strategies/oauth-profile.type';
 
 const BCRYPT_SALT_ROUNDS = 12;
+const OAUTH_CODE_TTL_MS = 60_000;
 
 @Injectable()
 export class AuthService {
@@ -49,9 +52,13 @@ export class AuthService {
       where: { email: dto.email },
     });
 
-    const isValid = user
-      ? await bcrypt.compare(dto.password, user.passwordHash)
-      : false;
+    // A user who signed up via Google/GitHub has no passwordHash — they must
+    // use that provider (or set a password from Settings first) rather than
+    // getting a confusing bcrypt error here.
+    const isValid =
+      user?.passwordHash != null
+        ? await bcrypt.compare(dto.password, user.passwordHash)
+        : false;
 
     if (!user || !isValid) {
       throw new UnauthorizedException('Invalid email or password');
@@ -80,11 +87,79 @@ export class AuthService {
     return this.buildAuthResponse(user);
   }
 
+  // sessionId -> pending AuthResponseDto, consumed exactly once. Redirect-based
+  // OAuth can't hand tokens back in the URL (browser history, referrer headers,
+  // server logs would all see them), so the callback stores the real token pair
+  // here and redirects the browser with only a short-lived opaque code; the
+  // frontend immediately exchanges that code server-side for the real tokens.
+  private readonly pendingOAuthCodes = new Map<
+    string,
+    { auth: AuthResponseDto; expiresAt: number }
+  >();
+
+  /**
+   * Finds or creates a User for this OAuth profile (matching by email so a
+   * user can link both Google and GitHub to one account), links the
+   * OAuthAccount if not already linked, and returns a one-time code the
+   * frontend exchanges for a real token pair via exchangeOAuthCode().
+   */
+  async loginWithOAuth(profile: OAuthProfile): Promise<string> {
+    let user = await this.prisma.user.findUnique({ where: { email: profile.email } });
+
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          email: profile.email,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          avatarUrl: profile.avatarUrl,
+        },
+      });
+    }
+
+    await this.prisma.oAuthAccount.upsert({
+      where: {
+        provider_providerId: { provider: profile.provider, providerId: profile.providerId },
+      },
+      update: { userId: user.id },
+      create: { userId: user.id, provider: profile.provider, providerId: profile.providerId },
+    });
+
+    const auth = await this.buildAuthResponse(user);
+
+    const code = randomUUID();
+    this.pendingOAuthCodes.set(code, { auth, expiresAt: Date.now() + OAUTH_CODE_TTL_MS });
+    this.cleanupExpiredCodes();
+
+    return code;
+  }
+
+  /** Consumes a one-time OAuth code (see loginWithOAuth), returning the real token pair exactly once. */
+  exchangeOAuthCode(code: string): AuthResponseDto {
+    const entry = this.pendingOAuthCodes.get(code);
+    this.pendingOAuthCodes.delete(code);
+
+    if (!entry || entry.expiresAt < Date.now()) {
+      throw new UnauthorizedException('This sign-in link has expired or was already used.');
+    }
+    return entry.auth;
+  }
+
+  private cleanupExpiredCodes(): void {
+    const now = Date.now();
+    for (const [code, entry] of this.pendingOAuthCodes) {
+      if (entry.expiresAt < now) {
+        this.pendingOAuthCodes.delete(code);
+      }
+    }
+  }
+
   private async buildAuthResponse(user: {
     id: string;
     email: string;
     firstName: string | null;
     lastName: string | null;
+    avatarUrl?: string | null;
     role: string;
   }): Promise<AuthResponseDto> {
     const payload: JwtPayload = {
@@ -116,6 +191,7 @@ export class AuthService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        avatarUrl: user.avatarUrl,
         role: user.role,
       },
     };

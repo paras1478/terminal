@@ -10,21 +10,26 @@ datasource db {
 model User {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   email        String   @unique
-  passwordHash String
+  // Optional: a user who only ever signs in via Google/GitHub has no password.
+  // Set the first time they register/log in with email+password, or if they
+  // later choose to add one from Settings.
+  passwordHash String?
   firstName    String?
   lastName     String?
+  avatarUrl    String?
   role         Role     @default(USER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  workspaces   Workspace[]
-  sessions     AgentSession[]
-  tasks        Task[]
-  automations  Automation[]
-  logs         CommandLog[]
-  integrations WorkspaceIntegration[]
-  settings     UserSettings?
+  workspaces    Workspace[]
+  sessions      AgentSession[]
+  tasks         Task[]
+  automations   Automation[]
+  logs          CommandLog[]
+  integrations  WorkspaceIntegration[]
+  settings      UserSettings?
   notifications Notification[]
+  oauthAccounts OAuthAccount[]
 
   @@map("users")
 }
@@ -32,6 +37,28 @@ model User {
 enum Role {
   USER
   ADMIN
+}
+
+enum OAuthProvider {
+  GOOGLE
+  GITHUB
+}
+
+/// One row per (provider, provider account) a user has linked. Separate from
+/// User so the same person can sign in with Google AND GitHub and land in the
+/// same account, and so a user with no password (OAuth-only) is still just a
+/// normal User row.
+model OAuthAccount {
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String        @db.ObjectId
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider   OAuthProvider
+  providerId String
+  createdAt  DateTime      @default(now())
+
+  @@unique([provider, providerId])
+  @@index([userId])
+  @@map("oauth_accounts")
 }
 
 model WaitlistEntry {

@@ -1,4 +1,4 @@
-import { env } from "@/lib/env";
+import { API_BASE_URL } from "@/lib/env";
 import {
   authResponseSchema,
   type AuthResponse,
@@ -34,10 +34,10 @@ async function parseErrorMessage(response: Response): Promise<string> {
 }
 
 async function postAuth(
-  path: "/auth/register" | "/auth/login" | "/auth/refresh",
+  path: "/auth/register" | "/auth/login" | "/auth/refresh" | "/auth/oauth/exchange",
   payload: unknown,
 ): Promise<AuthResponse> {
-  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -66,4 +66,9 @@ export function loginUser(input: LoginInput): Promise<AuthResponse> {
 
 export function refreshSession(refreshToken: string): Promise<AuthResponse> {
   return postAuth("/auth/refresh", { refreshToken });
+}
+
+/** Exchanges the one-time code from the /auth/{google,github}/callback redirect for a real token pair. */
+export function exchangeOAuthCode(code: string): Promise<AuthResponse> {
+  return postAuth("/auth/oauth/exchange", { code });
 }

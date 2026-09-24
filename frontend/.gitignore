@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# .env.test has no secrets (just a placeholder API URL) and is needed so
+# tests that import src/lib/env.ts pass on a fresh checkout/CI.
+!.env.test
 
 # vercel
 .vercel

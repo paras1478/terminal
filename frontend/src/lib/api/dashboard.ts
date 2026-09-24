@@ -1,4 +1,4 @@
-import { env } from "@/lib/env";
+import { API_BASE_URL } from "@/lib/env";
 import { getAccessToken } from "@/lib/auth/session";
 import { ApiError } from "@/lib/api/auth";
 
@@ -295,7 +295,7 @@ async function request<T>(
     throw new ApiError("Not authenticated", 401);
   }
 
-  const url = new URL(`${env.NEXT_PUBLIC_API_URL}${path}`);
+  const url = new URL(`${API_BASE_URL}${path}`);
   if (options.query) {
     for (const [key, value] of Object.entries(options.query)) {
       if (value !== undefined && value !== "") {

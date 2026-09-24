@@ -6,6 +6,7 @@ import { registerAction } from "@/lib/auth/actions";
 import { initialAuthFormState } from "@/lib/auth/form-state";
 import { SubmitButton } from "@/components/auth/submit-button";
 import { FieldError } from "@/components/auth/field-error";
+import { OAuthButtons } from "@/components/auth/oauth-buttons";
 
 export function RegisterForm() {
   const [state, formAction] = useActionState(
@@ -14,7 +15,16 @@ export function RegisterForm() {
   );
 
   return (
-    <form action={formAction} noValidate className="space-y-4">
+    <div className="space-y-4">
+      <OAuthButtons />
+
+      <div className="flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500">
+        <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+        or sign up with email
+        <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+      </div>
+
+      <form action={formAction} noValidate className="space-y-4">
       {state.error && (
         <p
           role="alert"
@@ -136,6 +146,7 @@ export function RegisterForm() {
           Log in
         </Link>
       </p>
-    </form>
+      </form>
+    </div>
   );
 }
