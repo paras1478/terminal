@@ -19,7 +19,6 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { ExchangeOAuthCodeDto } from './dto/exchange-oauth-code.dto';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
-import { GitHubAuthGuard } from './guards/github-auth.guard';
 import { OAuthProfile } from './strategies/oauth-profile.type';
 
 @ApiTags('auth')
@@ -94,20 +93,6 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @ApiExcludeEndpoint()
   async googleCallback(@Req() req: Request, @Res() res: Response): Promise<void> {
-    await this.redirectWithOAuthResult(res, req.user as OAuthProfile | undefined);
-  }
-
-  @Get('github')
-  @UseGuards(GitHubAuthGuard)
-  @ApiExcludeEndpoint()
-  githubLogin(): void {
-    // Guard redirects to GitHub; this handler body never runs.
-  }
-
-  @Get('github/callback')
-  @UseGuards(GitHubAuthGuard)
-  @ApiExcludeEndpoint()
-  async githubCallback(@Req() req: Request, @Res() res: Response): Promise<void> {
     await this.redirectWithOAuthResult(res, req.user as OAuthProfile | undefined);
   }
 }

@@ -1,6 +1,6 @@
-/** Normalized shape both OAuth strategies produce, regardless of provider. */
+/** Normalized shape an OAuth strategy produces, regardless of provider. */
 export interface OAuthProfile {
-  provider: 'GOOGLE' | 'GITHUB';
+  provider: 'GOOGLE';
   providerId: string;
   email: string;
   firstName?: string;

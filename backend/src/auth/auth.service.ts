@@ -52,8 +52,8 @@ export class AuthService {
       where: { email: dto.email },
     });
 
-    // A user who signed up via Google/GitHub has no passwordHash — they must
-    // use that provider (or set a password from Settings first) rather than
+    // A user who signed up via Google has no passwordHash — they must use
+    // that provider (or set a password from Settings first) rather than
     // getting a confusing bcrypt error here.
     const isValid =
       user?.passwordHash != null
@@ -98,10 +98,11 @@ export class AuthService {
   >();
 
   /**
-   * Finds or creates a User for this OAuth profile (matching by email so a
-   * user can link both Google and GitHub to one account), links the
-   * OAuthAccount if not already linked, and returns a one-time code the
-   * frontend exchanges for a real token pair via exchangeOAuthCode().
+   * Finds or creates a User for this OAuth profile (matching by email, so a
+   * user who later signs in with another linked provider lands in the same
+   * account), links the OAuthAccount if not already linked, and returns a
+   * one-time code the frontend exchanges for a real token pair via
+   * exchangeOAuthCode().
    */
   async loginWithOAuth(profile: OAuthProfile): Promise<string> {
     let user = await this.prisma.user.findUnique({ where: { email: profile.email } });

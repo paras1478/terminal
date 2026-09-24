@@ -68,7 +68,7 @@ export function refreshSession(refreshToken: string): Promise<AuthResponse> {
   return postAuth("/auth/refresh", { refreshToken });
 }
 
-/** Exchanges the one-time code from the /auth/{google,github}/callback redirect for a real token pair. */
+/** Exchanges the one-time code from the /auth/google/callback redirect for a real token pair. */
 export function exchangeOAuthCode(code: string): Promise<AuthResponse> {
   return postAuth("/auth/oauth/exchange", { code });
 }

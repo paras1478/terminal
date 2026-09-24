@@ -80,7 +80,7 @@ export async function logoutAction(): Promise<void> {
 
 /**
  * Completes an OAuth sign-in: exchanges the one-time code the backend's
- * /auth/{google,github}/callback redirected here with (see
+ * /auth/google/callback redirected here with (see
  * app/auth/callback/page.tsx) for a real token pair, then creates the same
  * session cookies password login uses.
  */

@@ -41,13 +41,12 @@ enum Role {
 
 enum OAuthProvider {
   GOOGLE
-  GITHUB
 }
 
 /// One row per (provider, provider account) a user has linked. Separate from
-/// User so the same person can sign in with Google AND GitHub and land in the
-/// same account, and so a user with no password (OAuth-only) is still just a
-/// normal User row.
+/// User so a user with no password (OAuth-only) is still just a normal User
+/// row, and so another provider can be added later without a User schema
+/// change.
 model OAuthAccount {
   id         String        @id @default(auto()) @map("_id") @db.ObjectId
   userId     String        @db.ObjectId
