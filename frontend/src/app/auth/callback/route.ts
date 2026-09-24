@@ -25,11 +25,22 @@ import { APP_URL } from "@/lib/env";
  * though next dev only ever serves plain HTTP, producing
  * ERR_SSL_PROTOCOL_ERROR on redirect since nothing is listening for TLS on
  * that port.
+ *
+ * On success this redirects to /auth/loading?next=/dashboard rather than
+ * straight to /dashboard. A bare server-to-server redirect gives a
+ * just-cold-started Render instance (frontend or backend) zero chance to
+ * finish warming up before the browser's very next request — that race is
+ * the actual cause of the intermittent ERR_CONNECTION_* immediately after
+ * Google login, which a manual refresh moments later "fixes" simply because
+ * the service has finished starting by then. /auth/loading is a real
+ * client-rendered page that retries a live backend readiness check from the
+ * browser itself before ever navigating onward, so the browser only lands
+ * on /dashboard once a real request has succeeded.
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const code = request.nextUrl.searchParams.get("code");
   const origin = APP_URL ?? request.url;
-  const dashboardUrl = new URL("/dashboard", origin);
+  const loadingUrl = new URL("/auth/loading?next=/dashboard", origin);
   const loginErrorUrl = new URL("/login?error=oauth_failed", origin);
 
   if (!code) {
@@ -43,7 +54,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(loginErrorUrl);
   }
 
-  const response = NextResponse.redirect(dashboardUrl);
+  const response = NextResponse.redirect(loadingUrl);
 
   response.cookies.set(COOKIE_NAMES.accessToken, auth.accessToken, cookieOptionsFor("access"));
   response.cookies.set(COOKIE_NAMES.refreshToken, auth.refreshToken, cookieOptionsFor("refresh"));
