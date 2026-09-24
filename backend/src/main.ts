@@ -54,8 +54,11 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await createNestApp();
 
-  const port = process.env.PORT ?? 3000;
-  await app.listen(port);
+  // PORT is ONLY ever used here, to bind the server's own listener — never to
+  // construct a browser-facing URL (see auth.controller.ts's frontendOrigin,
+  // which uses the dedicated FRONTEND_URL/CORS_ORIGIN env vars instead).
+  const port = Number(process.env.PORT) || 3000;
+  await app.listen(port, '0.0.0.0');
   logger.log(`Application listening on port ${port}`);
 }
 

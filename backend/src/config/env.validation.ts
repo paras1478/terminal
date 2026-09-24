@@ -15,6 +15,14 @@ export const envValidationSchema = Joi.object({
 
   CORS_ORIGIN: Joi.string().default('https://terminal-1-riuw.onrender.com'),
 
+  // Dedicated source of truth for where OAuth redirects the browser back to
+  // (see auth.controller.ts's frontendOrigin). Deliberately separate from
+  // CORS_ORIGIN (a different concern — CORS headers) and from PORT (the
+  // server's own listen port, never a browser-facing URL). Must be a full
+  // origin, e.g. https://terminal-1-riuw.onrender.com or
+  // http://localhost:3001 — never derived from PORT or any request value.
+  FRONTEND_URL: Joi.string().optional(),
+
   THROTTLE_TTL: Joi.number().default(60000),
   THROTTLE_LIMIT: Joi.number().default(20),
 

@@ -23,10 +23,15 @@ import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { OAuthProfile } from './strategies/oauth-profile.type';
 
 // Frontend origins this backend is allowed to redirect an OAuth login back
-// to. CORS_ORIGIN remains the default/production target; ADDITIONAL_OAUTH_
-// RETURN_ORIGINS (comma-separated) lets local/Electron dev clients opt in
-// via ?returnTo=<origin> on /auth/google (see GoogleAuthGuard) without ever
-// letting an arbitrary attacker-supplied URL become a redirect target.
+// to. FRONTEND_URL is the explicit, dedicated source of truth for this — it
+// must NEVER be derived from PORT (that's the internal server-listener port
+// only; see main.ts's app.listen) or from anything request-dependent. Falls
+// back to CORS_ORIGIN (a pre-existing var covering a different concern —
+// CORS headers, not redirects) only for backward compatibility if
+// FRONTEND_URL isn't set. ADDITIONAL_OAUTH_RETURN_ORIGINS (comma-separated)
+// lets local/Electron dev clients opt in via ?returnTo=<origin> on
+// /auth/google (see GoogleAuthGuard) without ever letting an arbitrary
+// attacker-supplied URL become a redirect target.
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -38,7 +43,11 @@ export class AuthController {
   ) {}
 
   private get frontendOrigin(): string {
-    return this.configService.get<string>('CORS_ORIGIN') ?? 'https://terminal-1-riuw.onrender.com';
+    return (
+      this.configService.get<string>('FRONTEND_URL') ??
+      this.configService.get<string>('CORS_ORIGIN') ??
+      'https://terminal-1-riuw.onrender.com'
+    );
   }
 
   private get allowedReturnOrigins(): string[] {
