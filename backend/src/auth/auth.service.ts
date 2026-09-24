@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -19,6 +20,8 @@ const OAUTH_CODE_TTL_MS = 60_000;
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -105,34 +108,53 @@ export class AuthService {
    * exchangeOAuthCode().
    */
   async loginWithOAuth(profile: OAuthProfile): Promise<string> {
-    let user = await this.prisma.user.findUnique({ where: { email: profile.email } });
+    // TEMPORARY diagnostic logging for the OAuth login failure investigation.
+    // Never logs GOOGLE_CLIENT_SECRET, access/refresh tokens, API keys, or
+    // passwords — only the profile email (safe: it's the user's own account
+    // identifier, already visible to them) and boolean/step markers.
+    this.logger.log(
+      `[oauth] profile received: provider=${profile.provider} providerId=${profile.providerId ? 'present' : 'MISSING'} email=${profile.email ?? 'MISSING'}`,
+    );
 
-    if (!user) {
-      user = await this.prisma.user.create({
-        data: {
-          email: profile.email,
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-          avatarUrl: profile.avatarUrl,
+    try {
+      let user = await this.prisma.user.findUnique({ where: { email: profile.email } });
+      this.logger.log(`[oauth] user lookup: ${user ? 'found existing user' : 'no existing user'}`);
+
+      if (!user) {
+        user = await this.prisma.user.create({
+          data: {
+            email: profile.email,
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            avatarUrl: profile.avatarUrl,
+          },
+        });
+        this.logger.log('[oauth] user creation: succeeded');
+      }
+
+      await this.prisma.oAuthAccount.upsert({
+        where: {
+          provider_providerId: { provider: profile.provider, providerId: profile.providerId },
         },
+        update: { userId: user.id },
+        create: { userId: user.id, provider: profile.provider, providerId: profile.providerId },
       });
+      this.logger.log('[oauth] oauthAccount upsert: succeeded');
+
+      const auth = await this.buildAuthResponse(user);
+      this.logger.log('[oauth] JWT generation: succeeded');
+
+      const code = randomUUID();
+      this.pendingOAuthCodes.set(code, { auth, expiresAt: Date.now() + OAUTH_CODE_TTL_MS });
+      this.cleanupExpiredCodes();
+      this.logger.log(`[oauth] one-time code minted, pendingOAuthCodes size=${this.pendingOAuthCodes.size}`);
+
+      return code;
+    } catch (err) {
+      const error = err as Error;
+      this.logger.error(`[oauth] loginWithOAuth failed: ${error.name}: ${error.message}`, error.stack);
+      throw err;
     }
-
-    await this.prisma.oAuthAccount.upsert({
-      where: {
-        provider_providerId: { provider: profile.provider, providerId: profile.providerId },
-      },
-      update: { userId: user.id },
-      create: { userId: user.id, provider: profile.provider, providerId: profile.providerId },
-    });
-
-    const auth = await this.buildAuthResponse(user);
-
-    const code = randomUUID();
-    this.pendingOAuthCodes.set(code, { auth, expiresAt: Date.now() + OAUTH_CODE_TTL_MS });
-    this.cleanupExpiredCodes();
-
-    return code;
   }
 
   /** Consumes a one-time OAuth code (see loginWithOAuth), returning the real token pair exactly once. */
@@ -141,8 +163,12 @@ export class AuthService {
     this.pendingOAuthCodes.delete(code);
 
     if (!entry || entry.expiresAt < Date.now()) {
+      this.logger.warn(
+        `[oauth] exchangeOAuthCode failed: ${!entry ? 'code not found (wrong process instance, or already consumed)' : 'code expired'}, pendingOAuthCodes size=${this.pendingOAuthCodes.size}`,
+      );
       throw new UnauthorizedException('This sign-in link has expired or was already used.');
     }
+    this.logger.log('[oauth] exchangeOAuthCode: succeeded');
     return entry.auth;
   }
 

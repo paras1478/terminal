@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
   Post,
   Req,
   Res,
@@ -24,6 +25,8 @@ import { OAuthProfile } from './strategies/oauth-profile.type';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
@@ -37,14 +40,21 @@ export class AuthController {
     res: Response,
     profile: OAuthProfile | undefined,
   ): Promise<void> {
+    // TEMPORARY diagnostic logging for the OAuth login failure investigation.
+    // Never logs GOOGLE_CLIENT_SECRET, access/refresh tokens, or passwords.
+    this.logger.log(`[oauth] callback reached, frontendOrigin=${this.frontendOrigin}`);
+
     if (!profile) {
+      this.logger.warn('[oauth] Passport guard produced no profile — Google auth itself did not complete');
       res.redirect(`${this.frontendOrigin}/login?error=oauth_failed`);
       return;
     }
     try {
       const code = await this.authService.loginWithOAuth(profile);
       res.redirect(`${this.frontendOrigin}/auth/callback?code=${encodeURIComponent(code)}`);
-    } catch {
+    } catch (err) {
+      const error = err as Error;
+      this.logger.error(`[oauth] redirectWithOAuthResult failed: ${error.name}: ${error.message}`, error.stack);
       res.redirect(`${this.frontendOrigin}/login?error=oauth_failed`);
     }
   }

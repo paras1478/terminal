@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback, Profile } from 'passport-google-oauth20';
@@ -11,12 +11,23 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     // env vars aren't configured, the /auth/google routes will simply fail
     // when actually used (Google will reject the placeholder client ID)
     // rather than crashing the entire backend for every other feature.
+    const callbackURL =
+      configService.get<string>('GOOGLE_CALLBACK_URL') ??
+      'http://localhost:3000/auth/google/callback';
+    const clientID = configService.get<string>('GOOGLE_CLIENT_ID') ?? 'not-configured';
+
+    // TEMPORARY diagnostic logging for the OAuth login failure investigation.
+    // Never logs GOOGLE_CLIENT_SECRET. Logs at boot time so you can compare
+    // this exact runtime value against Google Cloud Console's authorized
+    // redirect URI without guessing what env var Render actually applied.
+    new Logger('GoogleStrategy').log(
+      `[oauth] configured callbackURL=${callbackURL} clientID=${clientID === 'not-configured' ? 'NOT CONFIGURED' : `${clientID.slice(0, 12)}...`}`,
+    );
+
     super({
-      clientID: configService.get<string>('GOOGLE_CLIENT_ID') ?? 'not-configured',
+      clientID,
       clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET') ?? 'not-configured',
-      callbackURL:
-        configService.get<string>('GOOGLE_CALLBACK_URL') ??
-        'http://localhost:3000/auth/google/callback',
+      callbackURL,
       scope: ['profile', 'email'],
     });
   }
