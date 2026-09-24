@@ -8,19 +8,25 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
-import { ApiExcludeEndpoint, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiExcludeEndpoint, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { UserResponseDto } from './dto/auth-response.dto';
 import { ExchangeOAuthCodeDto } from './dto/exchange-oauth-code.dto';
+import { CurrentUser } from './decorators/current-user.decorator';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { OAuthProfile } from './strategies/oauth-profile.type';
+import type { JwtPayload } from './types/jwt-payload.type';
+import { PrismaService } from '../prisma/prisma.service';
 
 // Frontend origins this backend is allowed to redirect an OAuth login back
 // to. FRONTEND_URL is the explicit, dedicated source of truth for this — it
@@ -40,6 +46,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
   ) {}
 
   private get frontendOrigin(): string {
@@ -124,6 +131,34 @@ export class AuthController {
   @ApiResponse({ status: 200, type: AuthResponseDto })
   exchangeOAuthCode(@Body() dto: ExchangeOAuthCodeDto): AuthResponseDto {
     return this.authService.exchangeOAuthCode(dto.code);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Return the currently authenticated user, verified against the database',
+  })
+  @ApiResponse({ status: 200, type: UserResponseDto })
+  @ApiResponse({ status: 401, description: 'Token invalid, expired, or the account no longer exists' })
+  async me(@CurrentUser() payload: JwtPayload): Promise<UserResponseDto> {
+    // JwtAuthGuard (via JwtStrategy.validate) already confirms this user still
+    // exists in the database before this handler ever runs — a deleted
+    // account's token is rejected with 401 there. This is the endpoint the
+    // frontend calls to perform that real, backend-validated check on every
+    // dashboard load, rather than trusting the client-readable `user` cookie.
+    const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+    if (!user) {
+      throw new UnauthorizedException('This account no longer exists.');
+    }
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      avatarUrl: user.avatarUrl,
+      role: user.role,
+    };
   }
 
   @Get('google')

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { getAccessToken, getCurrentUser } from "@/lib/auth/session";
+import { getAccessToken, destroySession } from "@/lib/auth/session";
+import { fetchCurrentUser, ApiError } from "@/lib/api/auth";
 import { getSettings } from "@/lib/api/dashboard";
 import { ToastProvider } from "@/components/toast/toast-provider";
 import { ThemeProvider, type ThemePreference } from "@/components/theme/theme-provider";
@@ -9,10 +10,25 @@ import { Topbar } from "./components/topbar";
 export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const user = await getCurrentUser();
+  const accessToken = await getAccessToken();
 
-  if (!user) {
+  if (!accessToken) {
     redirect("/login");
+  }
+
+  // Real, backend-validated auth check — NOT just reading the client-editable
+  // `user` cookie. GET /auth/me queries the database on every request (via
+  // JwtStrategy.validate), so a token whose user was deleted from MongoDB is
+  // rejected here with 401 even though the JWT itself hasn't expired yet.
+  let user;
+  try {
+    user = await fetchCurrentUser(accessToken);
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 401) {
+      await destroySession();
+      redirect("/login");
+    }
+    throw err;
   }
 
   let initialTheme: ThemePreference = "dark";
@@ -24,8 +40,6 @@ export default async function DashboardLayout({
   } catch {
     // fall back to dark if settings can't be loaded (e.g. transient API error)
   }
-
-  const accessToken = (await getAccessToken()) ?? "";
 
   return (
     <ThemeProvider initialTheme={initialTheme}>

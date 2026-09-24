@@ -1,9 +1,11 @@
 import { API_BASE_URL } from "@/lib/env";
 import {
   authResponseSchema,
+  userSchema,
   type AuthResponse,
   type LoginInput,
   type RegisterInput,
+  type User,
 } from "@/lib/schemas/auth";
 
 export class ApiError extends Error {
@@ -71,4 +73,28 @@ export function refreshSession(refreshToken: string): Promise<AuthResponse> {
 /** Exchanges the one-time code from the /auth/google/callback redirect for a real token pair. */
 export function exchangeOAuthCode(code: string): Promise<AuthResponse> {
   return postAuth("/auth/oauth/exchange", { code });
+}
+
+/**
+ * Real, backend-validated "am I still logged in" check. Unlike reading the
+ * `user` cookie (which is just whatever was written at login time and proves
+ * nothing about the account's current state), this hits GET /auth/me, which
+ * is guarded by JwtAuthGuard/JwtStrategy — that guard queries the database on
+ * every call and rejects with 401 if the account no longer exists, so a
+ * deleted user's still-unexpired access token is correctly treated as invalid
+ * here. Throws ApiError(401) when the token is missing/invalid/expired or the
+ * account was deleted; callers must treat any throw as "not authenticated."
+ */
+export async function fetchCurrentUser(accessToken: string): Promise<User> {
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new ApiError(await parseErrorMessage(response), response.status);
+  }
+
+  return userSchema.parse(await response.json());
 }
