@@ -77,3 +77,17 @@ export async function logoutAction(): Promise<void> {
   await destroySession();
   redirect("/login");
 }
+
+/**
+ * Clears the httpOnly session cookies without redirecting. Cookies can only
+ * be written from server code (Server Actions, Route Handlers, Middleware —
+ * see lib/auth/session.ts), so the client-side auth poller (AuthPoller)
+ * calls this plain server action when GET /auth/me comes back 401, then
+ * performs the actual navigation itself via useRouter — keeping the
+ * "redirect must be called outside try/catch" navigation logic entirely in
+ * one place (the client) rather than split across a server action's own
+ * control flow.
+ */
+export async function clearSessionAction(): Promise<void> {
+  await destroySession();
+}
