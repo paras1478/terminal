@@ -17,12 +17,29 @@ import type { Request } from 'express';
  * needed for this — the controller validates it against an allowlist before
  * ever using it as a redirect target, so this can't be used to redirect to
  * an arbitrary attacker-controlled URL.
+ *
+ * Also forces Google's account-chooser screen via `prompt: 'select_account'`
+ * on every /auth/google request. Without this, Google can silently reuse an
+ * existing browser session/grant and skip straight to the callback with
+ * whichever Google account is already signed in — which is surprising when
+ * the user just saw "this account no longer exists" and clicks
+ * "Continue with Google" expecting a chance to pick a (possibly different)
+ * account. This only affects which Google account the user is asked to
+ * choose; it has no bearing on whether that Google identity maps to an
+ * existing application User — that check still happens entirely in
+ * AuthService.loginWithOAuth.
  */
 @Injectable()
 export class GoogleAuthGuard extends AuthGuard('google') {
   getAuthenticateOptions(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<Request>();
-    const returnTo = typeof request.query.returnTo === 'string' ? request.query.returnTo : undefined;
-    return returnTo ? { state: returnTo } : {};
+    const returnTo =
+      typeof request.query.returnTo === 'string'
+        ? request.query.returnTo
+        : undefined;
+    return {
+      prompt: 'select_account',
+      ...(returnTo ? { state: returnTo } : {}),
+    };
   }
 }
