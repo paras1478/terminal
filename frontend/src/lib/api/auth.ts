@@ -53,6 +53,39 @@ async function postAuth(
   return authResponseSchema.parse(await response.json());
 }
 
+/**
+ * Explicitly creates a new application account for a Google identity that
+ * had none (see backend AuthController.completeOAuthRegistration), using
+ * the pending-registration token minted by the /auth/google/callback
+ * redirect. Returns the same kind of one-time code exchangeOAuthCode()
+ * consumes, so callers should feed the result straight into the existing
+ * /auth/callback flow rather than duplicating cookie-setting logic.
+ */
+export async function completeOAuthRegistration(
+  token: string,
+): Promise<{ code: string }> {
+  const response = await fetch(`${API_BASE_URL}/auth/oauth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new ApiError(await parseErrorMessage(response), response.status);
+  }
+
+  const body: unknown = await response.json();
+  if (
+    !body ||
+    typeof body !== "object" ||
+    typeof (body as { code?: unknown }).code !== "string"
+  ) {
+    throw new ApiError("Unexpected response from server.", 502);
+  }
+  return { code: (body as { code: string }).code };
+}
+
 export function registerUser(input: RegisterInput): Promise<AuthResponse> {
   return postAuth("/auth/register", {
     email: input.email,

@@ -26,14 +26,6 @@ export default async function LoginPage({
             Sign-in with that provider failed. Please try again.
           </p>
         )}
-        {error === "account_deleted" && (
-          <p
-            role="alert"
-            className="mb-4 rounded-md border border-error/30 bg-error-subtle px-3 py-2 text-sm text-error"
-          >
-            This account no longer exists. Please register again to create a new account.
-          </p>
-        )}
         <LoginForm />
       </div>
     </main>

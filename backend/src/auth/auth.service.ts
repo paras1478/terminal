@@ -2,9 +2,9 @@ import {
   ConflictException,
   Injectable,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { OAuthAccountDeletedException } from './errors/oauth-account-deleted.exception';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -18,6 +18,18 @@ import { OAuthProfile } from './strategies/oauth-profile.type';
 
 const BCRYPT_SALT_ROUNDS = 12;
 const OAUTH_CODE_TTL_MS = 60_000;
+const OAUTH_PENDING_REGISTRATION_TTL_MS = 5 * 60_000;
+
+/**
+ * Result of an OAuth callback lookup: either the Google identity already
+ * matches an application User (`kind: 'login'`, code exchanged the normal
+ * way via exchangeOAuthCode), or it doesn't (`kind: 'pending_registration'`)
+ * and the caller must send the browser into the explicit registration
+ * confirmation flow — see completeOAuthRegistration().
+ */
+export type OAuthLoginResult =
+  | { kind: 'login'; code: string }
+  | { kind: 'pending_registration'; token: string; email: string };
 
 @Injectable()
 export class AuthService {
@@ -101,20 +113,34 @@ export class AuthService {
     { auth: AuthResponseDto; expiresAt: number }
   >();
 
+  // token -> the Google profile awaiting explicit user confirmation before a
+  // new User row is created. See loginWithOAuth's 'pending_registration' case
+  // and completeOAuthRegistration(). Kept separate from pendingOAuthCodes
+  // (which already holds a *finished* login) since this map holds an
+  // unconsummated OAuth profile, not yet-issued tokens.
+  private readonly pendingOAuthRegistrations = new Map<
+    string,
+    { profile: OAuthProfile; expiresAt: number }
+  >();
+
   /**
    * Finds a User for this OAuth profile (matching by email, so a user who
-   * later signs in with another linked provider lands in the same account),
-   * links the OAuthAccount if not already linked, and returns a one-time
-   * code the frontend exchanges for a real token pair via
-   * exchangeOAuthCode().
+   * later signs in with another linked provider lands in the same account).
+   * If found, links the OAuthAccount if not already linked and returns a
+   * one-time login code (exchanged via exchangeOAuthCode()). If not found,
+   * returns a one-time pending-registration token instead — the caller must
+   * send the browser to an explicit registration-confirmation step
+   * (completeOAuthRegistration()) rather than treating Google's success as
+   * proof an application account should exist.
    *
    * Deliberately does NOT create a new User here. Google can complete OAuth
    * silently (no consent screen) for an account whose Google-side grant is
    * still active even after we've deleted the corresponding User row — so
-   * "no User found" during OAuth must be treated as a deleted/deprovisioned
-   * account, not a first-time signup, or deletion would never be permanent.
+   * "no User found" during OAuth must never silently recreate the account;
+   * it must go through the same explicit, user-initiated registration step
+   * a brand-new signup would.
    */
-  async loginWithOAuth(profile: OAuthProfile): Promise<string> {
+  async loginWithOAuth(profile: OAuthProfile): Promise<OAuthLoginResult> {
     // TEMPORARY diagnostic logging for the OAuth login failure investigation.
     // Never logs GOOGLE_CLIENT_SECRET, access/refresh tokens, API keys, or
     // passwords — only the profile email (safe: it's the user's own account
@@ -133,9 +159,15 @@ export class AuthService {
 
       if (!user) {
         this.logger.warn(
-          '[oauth] rejecting login: no User exists for this email (account was deleted, or never registered)',
+          '[oauth] no User exists for this email (deleted, or never registered) — routing to pending registration',
         );
-        throw new OAuthAccountDeletedException();
+        const token = randomUUID();
+        this.pendingOAuthRegistrations.set(token, {
+          profile,
+          expiresAt: Date.now() + OAUTH_PENDING_REGISTRATION_TTL_MS,
+        });
+        this.cleanupExpiredPendingRegistrations();
+        return { kind: 'pending_registration', token, email: profile.email };
       }
 
       await this.prisma.oAuthAccount.upsert({
@@ -157,17 +189,12 @@ export class AuthService {
       const auth = await this.buildAuthResponse(user);
       this.logger.log('[oauth] JWT generation: succeeded');
 
-      const code = randomUUID();
-      this.pendingOAuthCodes.set(code, {
-        auth,
-        expiresAt: Date.now() + OAUTH_CODE_TTL_MS,
-      });
-      this.cleanupExpiredCodes();
+      const code = this.mintOAuthCode(auth);
       this.logger.log(
         `[oauth] one-time code minted, pendingOAuthCodes size=${this.pendingOAuthCodes.size}`,
       );
 
-      return code;
+      return { kind: 'login', code };
     } catch (err) {
       const error = err as Error;
       this.logger.error(
@@ -176,6 +203,68 @@ export class AuthService {
       );
       throw err;
     }
+  }
+
+  /**
+   * Creates a new User (+ linked OAuthAccount) for a pending OAuth
+   * registration token minted by loginWithOAuth(), and returns a one-time
+   * login code the same way a normal OAuth login would. Only ever called
+   * from the explicit "Create account" confirmation the frontend shows for
+   * a Google identity with no existing application account — never
+   * automatically from the OAuth callback itself.
+   */
+  async completeOAuthRegistration(token: string): Promise<string> {
+    const entry = this.pendingOAuthRegistrations.get(token);
+    this.pendingOAuthRegistrations.delete(token);
+
+    if (!entry || entry.expiresAt < Date.now()) {
+      this.logger.warn(
+        `[oauth] completeOAuthRegistration failed: ${!entry ? 'token not found (wrong process instance, or already consumed)' : 'token expired'}`,
+      );
+      throw new NotFoundException(
+        'This registration link has expired or was already used. Please try "Continue with Google" again.',
+      );
+    }
+
+    const { profile } = entry;
+
+    // Re-check for a race: another request (e.g. a concurrent login, or the
+    // user double-clicking "Create account") may have created this User
+    // between the original OAuth callback and this confirmation.
+    const existing = await this.prisma.user.findUnique({
+      where: { email: profile.email },
+    });
+    const user =
+      existing ??
+      (await this.prisma.user.create({
+        data: {
+          email: profile.email,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          avatarUrl: profile.avatarUrl,
+        },
+      }));
+    this.logger.log(
+      `[oauth] completeOAuthRegistration: ${existing ? 'used existing user (race)' : 'user creation succeeded'}`,
+    );
+
+    await this.prisma.oAuthAccount.upsert({
+      where: {
+        provider_providerId: {
+          provider: profile.provider,
+          providerId: profile.providerId,
+        },
+      },
+      update: { userId: user.id },
+      create: {
+        userId: user.id,
+        provider: profile.provider,
+        providerId: profile.providerId,
+      },
+    });
+
+    const auth = await this.buildAuthResponse(user);
+    return this.mintOAuthCode(auth);
   }
 
   /** Consumes a one-time OAuth code (see loginWithOAuth), returning the real token pair exactly once. */
@@ -195,11 +284,30 @@ export class AuthService {
     return entry.auth;
   }
 
+  private mintOAuthCode(auth: AuthResponseDto): string {
+    const code = randomUUID();
+    this.pendingOAuthCodes.set(code, {
+      auth,
+      expiresAt: Date.now() + OAUTH_CODE_TTL_MS,
+    });
+    this.cleanupExpiredCodes();
+    return code;
+  }
+
   private cleanupExpiredCodes(): void {
     const now = Date.now();
     for (const [code, entry] of this.pendingOAuthCodes) {
       if (entry.expiresAt < now) {
         this.pendingOAuthCodes.delete(code);
+      }
+    }
+  }
+
+  private cleanupExpiredPendingRegistrations(): void {
+    const now = Date.now();
+    for (const [token, entry] of this.pendingOAuthRegistrations) {
+      if (entry.expiresAt < now) {
+        this.pendingOAuthRegistrations.delete(token);
       }
     }
   }

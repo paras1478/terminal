@@ -33,7 +33,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { OAuthProfile } from './strategies/oauth-profile.type';
 import type { JwtPayload } from './types/jwt-payload.type';
 import { PrismaService } from '../prisma/prisma.service';
-import { OAuthAccountDeletedException } from './errors/oauth-account-deleted.exception';
+import { CompleteOAuthRegistrationDto } from './dto/complete-oauth-registration.dto';
 
 // Frontend origins this backend is allowed to redirect an OAuth login back
 // to. FRONTEND_URL is the explicit, dedicated source of truth for this — it
@@ -104,16 +104,20 @@ export class AuthController {
       return;
     }
     try {
-      const code = await this.authService.loginWithOAuth(profile);
-      res.redirect(
-        `${returnOrigin}/auth/callback?code=${encodeURIComponent(code)}`,
-      );
-    } catch (err) {
-      if (err instanceof OAuthAccountDeletedException) {
-        this.logger.warn('[oauth] redirectWithOAuthResult: account_deleted');
-        res.redirect(`${returnOrigin}/login?error=account_deleted`);
+      const result = await this.authService.loginWithOAuth(profile);
+      if (result.kind === 'pending_registration') {
+        this.logger.warn(
+          '[oauth] redirectWithOAuthResult: no existing account — routing to registration confirmation',
+        );
+        res.redirect(
+          `${returnOrigin}/register?oauthPending=${encodeURIComponent(result.token)}&oauthEmail=${encodeURIComponent(result.email)}`,
+        );
         return;
       }
+      res.redirect(
+        `${returnOrigin}/auth/callback?code=${encodeURIComponent(result.code)}`,
+      );
+    } catch (err) {
       const error = err as Error;
       this.logger.error(
         `[oauth] redirectWithOAuthResult failed: ${error.name}: ${error.message}`,
@@ -154,6 +158,23 @@ export class AuthController {
   @ApiResponse({ status: 200, type: AuthResponseDto })
   exchangeOAuthCode(@Body() dto: ExchangeOAuthCodeDto): AuthResponseDto {
     return this.authService.exchangeOAuthCode(dto.code);
+  }
+
+  @Post('oauth/register')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Explicitly create a new application account for a Google identity that had none, using the pending-registration token from the OAuth callback redirect. Returns a one-time code to be exchanged via POST /auth/oauth/exchange, same as a normal OAuth login.',
+  })
+  @ApiResponse({
+    status: 200,
+    schema: { properties: { code: { type: 'string' } } },
+  })
+  async completeOAuthRegistration(
+    @Body() dto: CompleteOAuthRegistrationDto,
+  ): Promise<{ code: string }> {
+    const code = await this.authService.completeOAuthRegistration(dto.token);
+    return { code };
   }
 
   @Get('me')
