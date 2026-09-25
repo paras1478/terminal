@@ -82,7 +82,7 @@ export function SettingsForm({
   return (
     <form ref={formRef} action={formAction} className="space-y-8">
       {state.error && (
-        <p role="alert" className="rounded-lg border border-red-400/20 bg-red-400/5 px-3 py-2 text-sm text-red-300">
+        <p role="alert" className="rounded-lg border border-error/20 bg-error-subtle px-3 py-2 text-sm text-error">
           {state.error}
         </p>
       )}
@@ -109,7 +109,7 @@ export function SettingsForm({
               name="allowedPatterns"
               rows={4}
               defaultValue={settings.allowedPatterns.join("\n")}
-              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 font-mono text-sm text-secondary outline-none focus:border-emerald-400/40"
+              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 font-mono text-sm text-secondary outline-none focus:border-accent-hover"
             />
           </div>
 
@@ -122,7 +122,7 @@ export function SettingsForm({
               name="dangerousBlocklist"
               rows={4}
               defaultValue={settings.dangerousBlocklist.join("\n")}
-              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 font-mono text-sm text-secondary outline-none focus:border-emerald-400/40"
+              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 font-mono text-sm text-secondary outline-none focus:border-accent-hover"
             />
           </div>
         </div>
@@ -142,10 +142,10 @@ export function SettingsForm({
               min={1}
               max={200}
               defaultValue={settings.maxStepsPerTask}
-              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
             />
             {state.fieldErrors?.maxStepsPerTask && (
-              <p className="mt-1 text-xs text-red-300">{state.fieldErrors.maxStepsPerTask[0]}</p>
+              <p className="mt-1 text-xs text-error">{state.fieldErrors.maxStepsPerTask[0]}</p>
             )}
           </div>
           <div>
@@ -159,10 +159,10 @@ export function SettingsForm({
               min={10}
               max={7200}
               defaultValue={settings.maxRuntimeSeconds}
-              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
             />
             {state.fieldErrors?.maxRuntimeSeconds && (
-              <p className="mt-1 text-xs text-red-300">{state.fieldErrors.maxRuntimeSeconds[0]}</p>
+              <p className="mt-1 text-xs text-error">{state.fieldErrors.maxRuntimeSeconds[0]}</p>
             )}
           </div>
           <div>
@@ -176,10 +176,10 @@ export function SettingsForm({
               min={1}
               max={20}
               defaultValue={settings.maxConcurrentSessions}
-              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
             />
             {state.fieldErrors?.maxConcurrentSessions && (
-              <p className="mt-1 text-xs text-red-300">{state.fieldErrors.maxConcurrentSessions[0]}</p>
+              <p className="mt-1 text-xs text-error">{state.fieldErrors.maxConcurrentSessions[0]}</p>
             )}
           </div>
         </div>
@@ -235,7 +235,7 @@ export function SettingsForm({
               name="theme"
               value={theme}
               onChange={(e) => setTheme(e.target.value as ThemePreference)}
-              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
             >
               <option value="dark">Dark</option>
               <option value="light">Light</option>
@@ -251,7 +251,7 @@ export function SettingsForm({
               id="modelSelection"
               name="modelSelection"
               defaultValue={settings.modelSelection}
-              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
             >
               {settings.availableModels.map((m) => (
                 <option key={m.id} value={m.id} disabled={!m.available}>
@@ -281,7 +281,7 @@ export function SettingsForm({
                     type="button"
                     onClick={() => handleDeleteKey(provider)}
                     disabled={deletingProvider === provider}
-                    className="text-xs font-medium text-red-300 hover:text-red-200 disabled:opacity-50"
+                    className="text-xs font-medium text-error hover:text-error/80 disabled:opacity-50"
                   >
                     {deletingProvider === provider ? "Removing…" : "Remove"}
                   </button>
@@ -305,7 +305,7 @@ export function SettingsForm({
                   setApiKeyProvider(e.target.value);
                   setValidation({ status: "idle" });
                 }}
-                className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+                className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
               >
                 <option value="openai">OpenAI</option>
                 <option value="anthropic">Anthropic</option>
@@ -326,7 +326,7 @@ export function SettingsForm({
                   setApiKeyValue(e.target.value);
                   setValidation({ status: "idle" });
                 }}
-                className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+                className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
               />
             </div>
           </div>
@@ -341,10 +341,10 @@ export function SettingsForm({
               {validation.status === "checking" ? "Checking…" : "Validate key"}
             </button>
             {validation.status === "valid" && (
-              <span className="text-xs text-emerald-300">Key accepted by provider.</span>
+              <span className="text-xs text-success">Key accepted by provider.</span>
             )}
             {validation.status === "invalid" && (
-              <span className="text-xs text-red-300">{validation.message ?? "Key rejected."}</span>
+              <span className="text-xs text-error">{validation.message ?? "Key rejected."}</span>
             )}
           </div>
           <p className="text-xs text-faint">
@@ -357,7 +357,7 @@ export function SettingsForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-5 py-2.5 text-sm font-medium text-emerald-300 transition hover:bg-emerald-400/20 disabled:opacity-50"
+        className="rounded-lg border border-accent/30 bg-accent-subtle px-5 py-2.5 text-sm font-medium text-accent-hover transition hover:bg-[rgb(59_130_246_/_0.2)] disabled:opacity-50"
       >
         {pending ? "Saving…" : "Save Settings"}
       </button>

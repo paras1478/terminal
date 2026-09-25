@@ -1,11 +1,11 @@
 import type { OverviewStats } from "@/lib/api/dashboard";
 
 const ACCENTS: Record<string, { text: string; bg: string; ring: string }> = {
-  emerald: { text: "text-emerald-300", bg: "bg-emerald-400/10", ring: "border-emerald-400/25" },
-  cyan: { text: "text-cyan-300", bg: "bg-cyan-400/10", ring: "border-cyan-400/25" },
-  red: { text: "text-red-300", bg: "bg-red-400/10", ring: "border-red-400/25" },
-  violet: { text: "text-violet-300", bg: "bg-violet-400/10", ring: "border-violet-400/25" },
-  amber: { text: "text-amber-300", bg: "bg-amber-400/10", ring: "border-amber-400/25" },
+  accent: { text: "text-accent-hover", bg: "bg-accent-subtle", ring: "border-accent/25" },
+  success: { text: "text-success", bg: "bg-success-subtle", ring: "border-success/25" },
+  error: { text: "text-error", bg: "bg-error-subtle", ring: "border-error/25" },
+  ai: { text: "text-ai", bg: "bg-ai-subtle", ring: "border-ai/25" },
+  warning: { text: "text-warning", bg: "bg-warning-subtle", ring: "border-warning/25" },
 };
 
 function StatIcon({ name, className }: { name: string; className?: string }) {
@@ -61,28 +61,28 @@ export function StatsRow({ stats }: { stats: OverviewStats }) {
       value: stats.totalCommands.value.toLocaleString(),
       ...formatDelta(stats.totalCommands.changePct),
       icon: "terminal",
-      accent: "emerald",
+      accent: "accent",
     },
     {
       title: "Successful Tasks",
       value: stats.successfulCommands.value.toLocaleString(),
       ...formatDelta(stats.successfulCommands.changePct),
       icon: "check",
-      accent: "cyan",
+      accent: "success",
     },
     {
       title: "Failed Tasks",
       value: stats.failedCommands.value.toLocaleString(),
       ...formatDelta(stats.failedCommands.changePct),
       icon: "warn",
-      accent: "red",
+      accent: "error",
     },
     {
       title: "Active Sessions",
       value: stats.activeSessions.value.toLocaleString(),
       ...formatDelta(stats.activeSessions.changePct),
       icon: "pulse",
-      accent: "violet",
+      accent: "ai",
     },
     {
       title: "Uptime",
@@ -90,7 +90,7 @@ export function StatsRow({ stats }: { stats: OverviewStats }) {
       label: "30d",
       trend: "flat" as const,
       icon: "clock",
-      accent: "amber",
+      accent: "warning",
     },
   ];
 
@@ -109,7 +109,7 @@ export function StatsRow({ stats }: { stats: OverviewStats }) {
               </div>
               <span
                 className={`text-xs font-medium ${
-                  s.trend === "up" ? "text-emerald-400" : s.trend === "down" ? "text-red-400" : "text-faint"
+                  s.trend === "up" ? "text-success" : s.trend === "down" ? "text-error" : "text-faint"
                 }`}
               >
                 {s.label}

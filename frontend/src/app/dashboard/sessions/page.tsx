@@ -45,7 +45,7 @@ export default async function SessionsPage({
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-red-400/20 bg-red-400/5 p-5 text-sm text-red-300">
+        <div className="rounded-2xl border border-error/20 bg-error-subtle p-5 text-sm text-error">
           {error}
         </div>
       )}

@@ -79,7 +79,7 @@ function removeNode(root: FileNode, relPath: string): FileNode {
 
 function FileIcon({ node }: { node: FileNode }) {
   if (node.type === "directory") {
-    return <span className="text-amber-300">📁</span>;
+    return <span className="text-warning">📁</span>;
   }
   const ext = node.name.split(".").pop()?.toLowerCase();
   const iconByExt: Record<string, string> = {
@@ -117,7 +117,7 @@ function TreeNode({
         onClick={() => (isDir ? onToggle(node.path) : onSelectFile(node.path))}
         style={{ paddingLeft: `${depth * 14 + 8}px` }}
         className={`flex w-full items-center gap-1.5 rounded px-2 py-1 text-left text-xs hover:panel-bg-strong ${
-          isSelected ? "bg-emerald-400/10 text-emerald-300" : "text-tertiary"
+          isSelected ? "bg-accent-subtle text-accent-hover" : "text-tertiary"
         }`}
         title={node.path}
       >
@@ -253,7 +253,7 @@ export function FileExplorer({
       <div className="flex-1 overflow-y-auto p-2">
         {loading && <p className="px-2 py-1 text-xs text-faint">Loading files…</p>}
         {error && !loading && (
-          <p className="px-2 py-1 text-xs text-red-400">{error}</p>
+          <p className="px-2 py-1 text-xs text-error">{error}</p>
         )}
         {!loading && !error && root && root.children && root.children.length === 0 && (
           <p className="px-2 py-1 text-xs text-faint">This workspace is empty.</p>

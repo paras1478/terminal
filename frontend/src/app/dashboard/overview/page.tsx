@@ -47,7 +47,7 @@ export default async function OverviewPage() {
       </div>
 
       {statsError ? (
-        <div className="rounded-2xl border border-red-400/20 bg-red-400/5 p-5 text-sm text-red-300">
+        <div className="rounded-2xl border border-error/20 bg-error-subtle p-5 text-sm text-error">
           {statsError}
         </div>
       ) : stats ? (
@@ -58,7 +58,7 @@ export default async function OverviewPage() {
         <div className="lg:col-span-2">
           <div className="h-[420px]">
             {sessionError ? (
-              <div className="flex h-full items-center justify-center rounded-2xl border border-red-400/20 bg-red-400/5 p-5 text-sm text-red-300">
+              <div className="flex h-full items-center justify-center rounded-2xl border border-error/20 bg-error-subtle p-5 text-sm text-error">
                 {sessionError}
               </div>
             ) : (

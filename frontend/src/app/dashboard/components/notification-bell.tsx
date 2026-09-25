@@ -140,7 +140,7 @@ export function NotificationBell({ accessToken }: { accessToken: string }) {
           <path d="M10 18a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 flex min-w-[1.125rem] items-center justify-center rounded-full bg-red-400 px-1 text-[10px] font-semibold leading-none text-white ring-2 ring-[var(--app-bg)]">
+          <span className="absolute -right-1 -top-1 flex min-w-[1.125rem] items-center justify-center rounded-full bg-error px-1 text-[10px] font-semibold leading-none text-primary ring-2 ring-[var(--app-bg)]">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
@@ -157,7 +157,7 @@ export function NotificationBell({ accessToken }: { accessToken: string }) {
               type="button"
               onClick={() => void handleMarkAllRead()}
               disabled={unreadCount === 0}
-              className="text-xs font-medium text-emerald-300 transition hover:text-emerald-200 disabled:cursor-not-allowed disabled:opacity-40"
+              className="text-xs font-medium text-accent-hover transition hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
             >
               Mark all as read
             </button>
@@ -167,7 +167,7 @@ export function NotificationBell({ accessToken }: { accessToken: string }) {
             {loading && notifications.length === 0 && (
               <p className="px-4 py-6 text-center text-sm text-faint">Loading…</p>
             )}
-            {error && <p className="px-4 py-6 text-center text-sm text-red-300">{error}</p>}
+            {error && <p className="px-4 py-6 text-center text-sm text-error">{error}</p>}
             {!loading && !error && notifications.length === 0 && (
               <p className="px-4 py-6 text-center text-sm text-faint">You&apos;re all caught up.</p>
             )}
@@ -183,7 +183,7 @@ export function NotificationBell({ accessToken }: { accessToken: string }) {
               >
                 <div className="flex items-center gap-2">
                   {!notification.read && (
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
                   )}
                   <span
                     className={`text-sm font-medium ${

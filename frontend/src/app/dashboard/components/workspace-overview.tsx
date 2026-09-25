@@ -18,7 +18,7 @@ export function WorkspaceOverview() {
             className="flex items-center justify-between rounded-xl border border-default panel-bg-soft p-3.5"
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-default bg-white/5 font-mono text-xs text-tertiary">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-default panel-bg-strong font-mono text-xs text-tertiary">
                 {w.name.slice(0, 2).toUpperCase()}
               </div>
               <div>
@@ -31,8 +31,8 @@ export function WorkspaceOverview() {
             <span
               className={`rounded-full border px-2.5 py-1 text-xs font-medium ${
                 w.status === "clean"
-                  ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                  : "border-amber-400/30 bg-amber-400/10 text-amber-300"
+                  ? "border-success/30 bg-success-subtle text-success"
+                  : "border-warning/30 bg-warning-subtle text-warning"
               }`}
             >
               {w.status}

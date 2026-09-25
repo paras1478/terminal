@@ -8,9 +8,9 @@ export const metadata: Metadata = {
 };
 
 const LAST_RUN_STYLES: Record<LastRunStatus, string> = {
-  SUCCESS: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
-  FAILED: "border-red-400/30 bg-red-400/10 text-red-300",
-  PENDING: "border-slate-400/30 bg-slate-400/10 text-tertiary",
+  SUCCESS: "border-success/30 bg-success-subtle text-success",
+  FAILED: "border-error/30 bg-error-subtle text-error",
+  PENDING: "border-warning/30 bg-warning-subtle text-warning",
 };
 
 export default async function AutomationsPage() {
@@ -32,7 +32,7 @@ export default async function AutomationsPage() {
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-red-400/20 bg-red-400/5 p-5 text-sm text-red-300">
+        <div className="rounded-2xl border border-error/20 bg-error-subtle p-5 text-sm text-error">
           {error}
         </div>
       )}

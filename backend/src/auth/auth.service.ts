@@ -4,6 +4,7 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
+import { OAuthAccountDeletedException } from './errors/oauth-account-deleted.exception';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -101,11 +102,17 @@ export class AuthService {
   >();
 
   /**
-   * Finds or creates a User for this OAuth profile (matching by email, so a
-   * user who later signs in with another linked provider lands in the same
-   * account), links the OAuthAccount if not already linked, and returns a
-   * one-time code the frontend exchanges for a real token pair via
+   * Finds a User for this OAuth profile (matching by email, so a user who
+   * later signs in with another linked provider lands in the same account),
+   * links the OAuthAccount if not already linked, and returns a one-time
+   * code the frontend exchanges for a real token pair via
    * exchangeOAuthCode().
+   *
+   * Deliberately does NOT create a new User here. Google can complete OAuth
+   * silently (no consent screen) for an account whose Google-side grant is
+   * still active even after we've deleted the corresponding User row — so
+   * "no User found" during OAuth must be treated as a deleted/deprovisioned
+   * account, not a first-time signup, or deletion would never be permanent.
    */
   async loginWithOAuth(profile: OAuthProfile): Promise<string> {
     // TEMPORARY diagnostic logging for the OAuth login failure investigation.
@@ -117,27 +124,33 @@ export class AuthService {
     );
 
     try {
-      let user = await this.prisma.user.findUnique({ where: { email: profile.email } });
-      this.logger.log(`[oauth] user lookup: ${user ? 'found existing user' : 'no existing user'}`);
+      const user = await this.prisma.user.findUnique({
+        where: { email: profile.email },
+      });
+      this.logger.log(
+        `[oauth] user lookup: ${user ? 'found existing user' : 'no existing user'}`,
+      );
 
       if (!user) {
-        user = await this.prisma.user.create({
-          data: {
-            email: profile.email,
-            firstName: profile.firstName,
-            lastName: profile.lastName,
-            avatarUrl: profile.avatarUrl,
-          },
-        });
-        this.logger.log('[oauth] user creation: succeeded');
+        this.logger.warn(
+          '[oauth] rejecting login: no User exists for this email (account was deleted, or never registered)',
+        );
+        throw new OAuthAccountDeletedException();
       }
 
       await this.prisma.oAuthAccount.upsert({
         where: {
-          provider_providerId: { provider: profile.provider, providerId: profile.providerId },
+          provider_providerId: {
+            provider: profile.provider,
+            providerId: profile.providerId,
+          },
         },
         update: { userId: user.id },
-        create: { userId: user.id, provider: profile.provider, providerId: profile.providerId },
+        create: {
+          userId: user.id,
+          provider: profile.provider,
+          providerId: profile.providerId,
+        },
       });
       this.logger.log('[oauth] oauthAccount upsert: succeeded');
 
@@ -145,14 +158,22 @@ export class AuthService {
       this.logger.log('[oauth] JWT generation: succeeded');
 
       const code = randomUUID();
-      this.pendingOAuthCodes.set(code, { auth, expiresAt: Date.now() + OAUTH_CODE_TTL_MS });
+      this.pendingOAuthCodes.set(code, {
+        auth,
+        expiresAt: Date.now() + OAUTH_CODE_TTL_MS,
+      });
       this.cleanupExpiredCodes();
-      this.logger.log(`[oauth] one-time code minted, pendingOAuthCodes size=${this.pendingOAuthCodes.size}`);
+      this.logger.log(
+        `[oauth] one-time code minted, pendingOAuthCodes size=${this.pendingOAuthCodes.size}`,
+      );
 
       return code;
     } catch (err) {
       const error = err as Error;
-      this.logger.error(`[oauth] loginWithOAuth failed: ${error.name}: ${error.message}`, error.stack);
+      this.logger.error(
+        `[oauth] loginWithOAuth failed: ${error.name}: ${error.message}`,
+        error.stack,
+      );
       throw err;
     }
   }
@@ -166,7 +187,9 @@ export class AuthService {
       this.logger.warn(
         `[oauth] exchangeOAuthCode failed: ${!entry ? 'code not found (wrong process instance, or already consumed)' : 'code expired'}, pendingOAuthCodes size=${this.pendingOAuthCodes.size}`,
       );
-      throw new UnauthorizedException('This sign-in link has expired or was already used.');
+      throw new UnauthorizedException(
+        'This sign-in link has expired or was already used.',
+      );
     }
     this.logger.log('[oauth] exchangeOAuthCode: succeeded');
     return entry.auth;

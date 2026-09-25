@@ -134,7 +134,7 @@ export function AgentPanel({
             <button
               type="button"
               onClick={handleStop}
-              className="rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-1.5 text-xs font-medium text-red-300 hover:bg-red-400/20"
+              className="rounded-lg border border-error/30 bg-error-subtle px-3 py-1.5 text-xs font-medium text-error hover:bg-[rgb(251_113_133_/_0.2)]"
             >
               Stop
             </button>
@@ -143,7 +143,7 @@ export function AgentPanel({
               type="button"
               onClick={handleRun}
               disabled={!goal.trim()}
-              className="rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-3 py-1.5 text-xs font-medium text-emerald-300 hover:bg-emerald-400/20 disabled:opacity-50"
+              className="rounded-lg border border-success/30 bg-success-subtle px-3 py-1.5 text-xs font-medium text-success hover:bg-[rgb(52_211_153_/_0.2)] disabled:opacity-50"
             >
               Run
             </button>
@@ -158,12 +158,12 @@ export function AgentPanel({
           disabled={running}
           rows={2}
           placeholder="e.g. Install dependencies, run the dev server, and fix any startup errors"
-          className="w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40 disabled:opacity-50"
+          className="w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover disabled:opacity-50"
         />
 
         {pendingConfirmation && (
-          <div className="rounded-lg border border-amber-400/30 bg-amber-400/10 p-3">
-            <p className="text-xs font-medium text-amber-300">Confirmation required</p>
+          <div className="rounded-lg border border-warning/30 bg-warning-subtle p-3">
+            <p className="text-xs font-medium text-warning">Confirmation required</p>
             <p className="mt-1 break-all font-mono text-xs text-secondary">
               {pendingConfirmation.description}
             </p>
@@ -171,14 +171,14 @@ export function AgentPanel({
               <button
                 type="button"
                 onClick={() => handleConfirm(true)}
-                className="rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300 hover:bg-emerald-400/20"
+                className="rounded-lg border border-success/30 bg-success-subtle px-3 py-1 text-xs font-medium text-success hover:bg-[rgb(52_211_153_/_0.2)]"
               >
                 Accept
               </button>
               <button
                 type="button"
                 onClick={() => handleConfirm(false)}
-                className="rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-1 text-xs font-medium text-red-300 hover:bg-red-400/20"
+                className="rounded-lg border border-error/30 bg-error-subtle px-3 py-1 text-xs font-medium text-error hover:bg-[rgb(251_113_133_/_0.2)]"
               >
                 Reject
               </button>
@@ -207,18 +207,18 @@ function ActivityLine({ event }: { event: ActivityEvent }) {
     case "thinking":
       return <p className="text-muted">{String(event.payload.text)}</p>;
     case "list_directory":
-      return <p className="text-cyan-400">$ ls {String(event.payload.path)}</p>;
+      return <p className="text-ai">$ ls {String(event.payload.path)}</p>;
     case "read_file":
       return (
-        <p className="text-cyan-400">
+        <p className="text-ai">
           reading {String(event.payload.path)}
           {event.payload.blocked ? " (blocked: secret file)" : ""}
         </p>
       );
     case "proposed_change":
       return (
-        <div className="rounded border border-purple-400/20 bg-purple-400/5 p-2">
-          <p className="text-purple-300">
+        <div className="rounded border border-ai/20 bg-ai-subtle p-2">
+          <p className="text-ai">
             {event.payload.blocked ? "blocked write: " : "proposed change: "}
             {String(event.payload.path)}
           </p>
@@ -230,7 +230,7 @@ function ActivityLine({ event }: { event: ActivityEvent }) {
         </div>
       );
     case "file_written":
-      return <p className="text-emerald-400">✓ wrote {String(event.payload.path)}</p>;
+      return <p className="text-success">✓ wrote {String(event.payload.path)}</p>;
     case "command":
       return <p className="text-secondary">$ {String(event.payload.command)}</p>;
     case "command_output":
@@ -240,11 +240,11 @@ function ActivityLine({ event }: { event: ActivityEvent }) {
         </pre>
       );
     case "confirmation_required":
-      return <p className="text-amber-400">awaiting confirmation…</p>;
+      return <p className="text-warning">awaiting confirmation…</p>;
     case "error":
-      return <p className="text-red-400">error: {String(event.payload.message)}</p>;
+      return <p className="text-error">error: {String(event.payload.message)}</p>;
     case "done":
-      return <p className="text-emerald-300">✓ {String(event.payload.message)}</p>;
+      return <p className="text-success">✓ {String(event.payload.message)}</p>;
     default:
       return null;
   }

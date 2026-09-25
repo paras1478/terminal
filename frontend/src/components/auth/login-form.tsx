@@ -18,17 +18,17 @@ export function LoginForm() {
     <div className="space-y-4">
       <OAuthButtons />
 
-      <div className="flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500">
-        <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+      <div className="flex items-center gap-3 text-xs text-faint">
+        <div className="h-px flex-1 bg-[color:var(--border-default)]" />
         or continue with email
-        <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+        <div className="h-px flex-1 bg-[color:var(--border-default)]" />
       </div>
 
       <form action={formAction} noValidate className="space-y-4">
       {state.error && (
         <p
           role="alert"
-          className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300"
+          className="rounded-md border border-error/30 bg-error-subtle px-3 py-2 text-sm text-error"
         >
           {state.error}
         </p>
@@ -37,7 +37,7 @@ export function LoginForm() {
       <div>
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+          className="block text-sm font-medium text-secondary"
         >
           Email
         </label>
@@ -49,7 +49,7 @@ export function LoginForm() {
           autoComplete="email"
           aria-describedby={state.fieldErrors.email ? "email-error" : undefined}
           aria-invalid={Boolean(state.fieldErrors.email)}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900"
+          className="mt-1 w-full rounded-md border border-default panel-bg px-3 py-2 text-sm text-primary focus:border-accent-hover focus:outline-none"
         />
         <FieldError id="email-error" messages={state.fieldErrors.email} />
       </div>
@@ -57,7 +57,7 @@ export function LoginForm() {
       <div>
         <label
           htmlFor="password"
-          className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+          className="block text-sm font-medium text-secondary"
         >
           Password
         </label>
@@ -71,18 +71,18 @@ export function LoginForm() {
             state.fieldErrors.password ? "password-error" : undefined
           }
           aria-invalid={Boolean(state.fieldErrors.password)}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900"
+          className="mt-1 w-full rounded-md border border-default panel-bg px-3 py-2 text-sm text-primary focus:border-accent-hover focus:outline-none"
         />
         <FieldError id="password-error" messages={state.fieldErrors.password} />
       </div>
 
       <SubmitButton pendingText="Logging in…">Log in</SubmitButton>
 
-      <p className="text-center text-sm text-slate-600 dark:text-slate-400">
+      <p className="text-center text-sm text-muted">
         Don&apos;t have an account?{" "}
         <Link
           href="/register"
-          className="font-medium text-slate-900 underline dark:text-white"
+          className="font-medium text-primary underline hover:text-accent-hover"
         >
           Create one
         </Link>

@@ -27,14 +27,14 @@ export default async function WorkspaceDetailPage({
       <div>
         <Link
           href="/dashboard/workspaces"
-          className="text-xs font-medium text-emerald-300 hover:text-emerald-200"
+          className="text-xs font-medium text-accent-hover hover:text-accent"
         >
           ← Back to workspaces
         </Link>
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-red-400/20 bg-red-400/5 p-5 text-sm text-red-300">
+        <div className="rounded-2xl border border-error/20 bg-error-subtle p-5 text-sm text-error">
           {error}
         </div>
       )}
@@ -79,8 +79,8 @@ export default async function WorkspaceDetailPage({
                     <span
                       className={`rounded-full border px-2 py-0.5 text-xs ${
                         i.status === "CONNECTED"
-                          ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                          : "border-slate-400/30 bg-slate-400/10 text-muted"
+                          ? "border-success/30 bg-success-subtle text-success"
+                          : "border-default panel-bg-strong text-muted"
                       }`}
                     >
                       {i.status === "CONNECTED" ? "Connected" : "Not connected"}

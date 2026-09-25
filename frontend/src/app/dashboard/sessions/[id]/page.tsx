@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 };
 
 const STATUS_STYLES: Record<SessionStatus, string> = {
-  RUNNING: "border-cyan-400/30 bg-cyan-400/10 text-cyan-300",
-  COMPLETED: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
-  FAILED: "border-red-400/30 bg-red-400/10 text-red-300",
+  RUNNING: "border-accent-hover/30 bg-accent-subtle text-accent-hover",
+  COMPLETED: "border-success/30 bg-success-subtle text-success",
+  FAILED: "border-error/30 bg-error-subtle text-error",
 };
 
 export default async function SessionDetailPage({
@@ -46,13 +46,13 @@ export default async function SessionDetailPage({
   return (
     <>
       <div>
-        <Link href="/dashboard/sessions" className="text-xs font-medium text-emerald-300 hover:text-emerald-200">
+        <Link href="/dashboard/sessions" className="text-xs font-medium text-accent-hover hover:text-accent">
           ← Back to sessions
         </Link>
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-red-400/20 bg-red-400/5 p-5 text-sm text-red-300">
+        <div className="rounded-2xl border border-error/20 bg-error-subtle p-5 text-sm text-error">
           {error}
         </div>
       )}
@@ -97,7 +97,7 @@ export default async function SessionDetailPage({
                 {session.plan.map((step) => (
                   <div
                     key={step.order}
-                    className={`flex items-center gap-2 text-sm ${step.done ? "text-emerald-300" : "text-muted"}`}
+                    className={`flex items-center gap-2 text-sm ${step.done ? "text-success" : "text-muted"}`}
                   >
                     <span>{step.done ? "✓" : "○"}</span>
                     <span>{step.label}</span>
@@ -138,11 +138,11 @@ export default async function SessionDetailPage({
                   <div key={`${step.order}-${i}`}>
                     {isCommand ? (
                       <div className="flex gap-2 text-secondary">
-                        <span className="text-emerald-400">$</span>
+                        <span className="text-accent-hover">$</span>
                         <span>{step.command}</span>
                       </div>
                     ) : (
-                      <div className={`pl-4 ${isError ? "text-red-400" : "text-faint"}`}>
+                      <div className={`pl-4 ${isError ? "text-error" : "text-faint"}`}>
                         {step.output ?? step.type}
                       </div>
                     )}

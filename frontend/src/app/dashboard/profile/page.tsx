@@ -27,7 +27,7 @@ export default async function ProfilePage() {
       </div>
 
       <div className="flex items-center gap-4 rounded-2xl border border-default panel-bg p-6">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-400/10 font-mono text-xl font-semibold text-emerald-300">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full border border-accent/30 bg-accent-subtle font-mono text-xl font-semibold text-accent-hover">
           {initials}
         </div>
         <div>
@@ -39,7 +39,7 @@ export default async function ProfilePage() {
 
       <div className="rounded-2xl border border-default panel-bg p-6">
         <h2 className="font-semibold text-primary">Account information</h2>
-        <dl className="mt-4 divide-y divide-white/10">
+        <dl className="mt-4 divide-y divide-[color:var(--border-default)]">
           <div className="flex items-center justify-between py-3 text-sm">
             <dt className="text-faint">Name</dt>
             <dd className="text-secondary">{displayName}</dd>

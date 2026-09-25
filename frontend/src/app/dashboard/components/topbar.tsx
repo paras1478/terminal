@@ -22,7 +22,7 @@ export function Topbar({ user, accessToken }: { user: User; accessToken: string 
           <input
             type="text"
             placeholder="Search commands, sessions, tasks…"
-            className="w-full rounded-lg border border-default panel-bg py-2 pl-9 pr-3 text-sm text-secondary placeholder:text-faint outline-none transition focus:border-emerald-400/40 focus:panel-bg-strong"
+            className="w-full rounded-lg border border-default panel-bg py-2 pl-9 pr-3 text-sm text-secondary placeholder:text-faint outline-none transition focus:border-accent-hover focus:panel-bg-strong"
           />
         </div>
       </div>

@@ -20,10 +20,10 @@ const TASKS: Task[] = [
 ];
 
 const STATUS_STYLES: Record<Status, string> = {
-  completed: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
-  running: "border-cyan-400/30 bg-cyan-400/10 text-cyan-300",
-  failed: "border-red-400/30 bg-red-400/10 text-red-300",
-  queued: "border-slate-400/30 bg-slate-400/10 text-tertiary",
+  completed: "border-success/30 bg-success-subtle text-success",
+  running: "border-accent-hover/30 bg-accent-subtle text-accent-hover",
+  failed: "border-error/30 bg-error-subtle text-error",
+  queued: "border-default panel-bg-strong text-tertiary",
 };
 
 const STATUS_LABEL: Record<Status, string> = {
@@ -38,7 +38,7 @@ export function TaskHistoryTable() {
     <div className="overflow-hidden rounded-2xl border border-default panel-bg backdrop-blur-xl">
       <div className="flex items-center justify-between border-b border-default px-5 py-4">
         <h3 className="font-semibold text-primary">Task History</h3>
-        <a href="#" className="text-xs font-medium text-emerald-300 hover:text-emerald-200">
+        <a href="#" className="text-xs font-medium text-accent-hover hover:text-accent">
           View all →
         </a>
       </div>

@@ -26,7 +26,7 @@ export function OAuthButtons() {
     <div className="space-y-3">
       <a
         href={googleLoginUrl}
-        className="flex w-full items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+        className="flex w-full items-center justify-center gap-2 rounded-md border border-default panel-bg px-3 py-2 text-sm font-medium text-secondary transition hover:panel-bg-hover hover:border-accent-hover"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
           <path

@@ -37,8 +37,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             role="status"
             className={`rounded-lg border px-4 py-2.5 text-sm font-medium shadow-lg backdrop-blur-xl ${
               toast.variant === "success"
-                ? "border-emerald-400/30 bg-emerald-950/90 text-emerald-300"
-                : "border-red-400/30 bg-red-950/90 text-red-300"
+                ? "border-success/30 surface-bg text-success"
+                : "border-error/30 surface-bg text-error"
             }`}
           >
             {toast.message}

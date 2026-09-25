@@ -69,7 +69,7 @@ export function SessionWorkspace({
 
       <div
         onPointerDown={startResize}
-        className="mx-2 hidden w-1 shrink-0 cursor-col-resize rounded bg-white/5 hover:bg-emerald-400/30 sm:block"
+        className="mx-2 hidden w-1 shrink-0 cursor-col-resize rounded panel-bg-strong hover:bg-accent/30 sm:block"
         title="Drag to resize"
       />
 
@@ -80,7 +80,7 @@ export function SessionWorkspace({
             onClick={() => setActiveTab("editor")}
             className={`rounded-lg border px-3 py-1 text-xs font-medium ${
               activeTab === "editor"
-                ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                ? "border-accent/30 bg-accent-subtle text-accent-hover"
                 : "border-default panel-bg text-muted hover:text-secondary"
             }`}
           >
@@ -91,7 +91,7 @@ export function SessionWorkspace({
             onClick={() => setActiveTab("terminal")}
             className={`rounded-lg border px-3 py-1 text-xs font-medium ${
               activeTab === "terminal"
-                ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                ? "border-accent/30 bg-accent-subtle text-accent-hover"
                 : "border-default panel-bg text-muted hover:text-secondary"
             }`}
           >

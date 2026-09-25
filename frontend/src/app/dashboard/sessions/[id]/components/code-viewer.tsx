@@ -89,20 +89,20 @@ export function CodeViewer({
       <div className="flex items-center justify-between border-b border-default panel-bg px-4 py-3">
         <h2 className="truncate font-mono text-xs text-muted" title={path}>
           {path}
-          {dirty && <span className="ml-1 text-amber-400">●</span>}
+          {dirty && <span className="ml-1 text-warning">●</span>}
         </h2>
         <button
           type="button"
           onClick={handleSave}
           disabled={!dirty || saving}
-          className="rounded-md border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 text-[11px] font-medium text-emerald-300 hover:bg-emerald-400/20 disabled:opacity-40"
+          className="rounded-md border border-accent/30 bg-accent-subtle px-2 py-0.5 text-[11px] font-medium text-accent-hover hover:bg-[rgb(59_130_246_/_0.2)] disabled:opacity-40"
         >
           {saving ? "Saving…" : "Save"}
         </button>
       </div>
 
       {truncated && (
-        <p className="border-b border-amber-400/20 bg-amber-400/5 px-4 py-1.5 text-[11px] text-amber-300">
+        <p className="border-b border-warning/20 bg-warning-subtle px-4 py-1.5 text-[11px] text-warning">
           File is large — showing a truncated preview.
         </p>
       )}
@@ -115,7 +115,7 @@ export function CodeViewer({
         )}
         {error && !loading && (
           <div className="flex h-full items-center justify-center">
-            <p className="text-xs text-red-400">{error}</p>
+            <p className="text-xs text-error">{error}</p>
           </div>
         )}
         {!loading && !error && (

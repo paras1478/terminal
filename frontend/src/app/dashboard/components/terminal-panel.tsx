@@ -5,7 +5,7 @@ function StepLine({ step }: { step: LiveSession["steps"][number] }) {
   if (step.type === "COMMAND" || step.type === "command") {
     return (
       <div className="flex gap-2 text-secondary">
-        <span className="text-emerald-400">$</span>
+        <span className="text-accent-hover">$</span>
         <span>{step.command ?? "(no command)"}</span>
       </div>
     );
@@ -13,7 +13,7 @@ function StepLine({ step }: { step: LiveSession["steps"][number] }) {
 
   const isError = typeof step.exitStatus === "number" && step.exitStatus !== 0;
   return (
-    <div className={`pl-4 ${isError ? "text-red-400" : "text-faint"}`}>
+    <div className={`pl-4 ${isError ? "text-error" : "text-faint"}`}>
       {step.output ?? step.type}
     </div>
   );
@@ -27,7 +27,7 @@ export function TerminalPanel({ session }: { session: LiveSession | null }) {
         <p className="text-sm text-muted">No agent session is currently running.</p>
         <Link
           href="/dashboard/sessions"
-          className="mt-2 text-xs font-medium text-emerald-300 hover:text-emerald-200"
+          className="mt-2 text-xs font-medium text-accent-hover hover:text-accent"
         >
           View past sessions →
         </Link>
@@ -38,16 +38,16 @@ export function TerminalPanel({ session }: { session: LiveSession | null }) {
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-default surface-bg/90 backdrop-blur-xl">
       <div className="flex items-center gap-2 border-b border-default panel-bg px-4 py-3">
-        <span className="h-3 w-3 rounded-full bg-red-500/70" />
-        <span className="h-3 w-3 rounded-full bg-yellow-500/70" />
-        <span className="h-3 w-3 rounded-full bg-emerald-500/70" />
+        <span className="h-3 w-3 rounded-full bg-error/70" />
+        <span className="h-3 w-3 rounded-full bg-warning/70" />
+        <span className="h-3 w-3 rounded-full bg-success/70" />
         <span className="ml-3 truncate font-mono text-xs text-faint">
           {session.workspaceName} · {session.goal}
         </span>
-        <span className="ml-auto flex shrink-0 items-center gap-1.5 text-xs text-emerald-400">
+        <span className="ml-auto flex shrink-0 items-center gap-1.5 text-xs text-success">
           <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
           </span>
           {session.status.toLowerCase()}
         </span>
@@ -58,7 +58,7 @@ export function TerminalPanel({ session }: { session: LiveSession | null }) {
             {session.plan.map((step) => (
               <div
                 key={step.order}
-                className={`flex items-center gap-2 ${step.done ? "text-emerald-300" : "text-faint"}`}
+                className={`flex items-center gap-2 ${step.done ? "text-success" : "text-faint"}`}
               >
                 <span>{step.done ? "✓" : "○"}</span>
                 <span>{step.label}</span>
@@ -71,12 +71,12 @@ export function TerminalPanel({ session }: { session: LiveSession | null }) {
             <StepLine step={step} />
           </div>
         ))}
-        <span className="inline-block h-3.5 w-2 animate-pulse bg-emerald-400 align-middle" />
+        <span className="inline-block h-3.5 w-2 animate-pulse bg-accent-hover align-middle" />
       </div>
       <div className="border-t border-default px-4 py-2 text-right">
         <Link
           href={`/dashboard/sessions/${session.id}`}
-          className="text-xs font-medium text-emerald-300 hover:text-emerald-200"
+          className="text-xs font-medium text-accent-hover hover:text-accent"
         >
           Open full session →
         </Link>

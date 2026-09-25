@@ -10,10 +10,10 @@ const LOGS: { level: Level; message: string; time: string }[] = [
 ];
 
 const LEVEL_STYLES: Record<Level, string> = {
-  info: "bg-cyan-400",
-  warn: "bg-amber-400",
-  error: "bg-red-400",
-  success: "bg-emerald-400",
+  info: "bg-accent-hover",
+  warn: "bg-warning",
+  error: "bg-error",
+  success: "bg-success",
 };
 
 export function LogsPanel() {
@@ -21,7 +21,7 @@ export function LogsPanel() {
     <div className="rounded-2xl border border-default panel-bg p-5 backdrop-blur-xl">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-primary">Recent Logs & Alerts</h3>
-        <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-2.5 py-0.5 text-xs font-medium text-amber-300">
+        <span className="rounded-full border border-warning/30 bg-warning-subtle px-2.5 py-0.5 text-xs font-medium text-warning">
           1 warning
         </span>
       </div>

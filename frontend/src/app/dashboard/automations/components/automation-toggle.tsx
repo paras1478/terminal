@@ -21,19 +21,19 @@ export function AutomationToggle({ id, enabled }: { id: string; enabled: boolean
         }}
         className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border transition disabled:opacity-50 ${
           enabled
-            ? "border-emerald-400/40 bg-emerald-400/20"
+            ? "border-accent/40 bg-accent-subtle"
             : "border-default panel-bg-strong"
         }`}
         aria-pressed={enabled}
         aria-label={enabled ? "Disable automation" : "Enable automation"}
       >
         <span
-          className={`inline-block h-4.5 w-4.5 transform rounded-full bg-slate-200 transition ${
-            enabled ? "translate-x-6" : "translate-x-1"
+          className={`inline-block h-4.5 w-4.5 transform rounded-full transition ${
+            enabled ? "translate-x-6 bg-accent-hover" : "translate-x-1 bg-[color:var(--text-faint)]"
           }`}
         />
       </button>
-      {error && <p className="text-xs text-red-300">{error}</p>}
+      {error && <p className="text-xs text-error">{error}</p>}
     </div>
   );
 }

@@ -14,23 +14,23 @@ export default function FaqAccordion({ items }: { items: FaqItem[] }) {
         return (
           <div
             key={item.q}
-            className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-xl"
+            className="overflow-hidden rounded-xl border border-default panel-bg backdrop-blur-xl"
           >
             <button
               type="button"
               onClick={() => setOpenIndex(isOpen ? null : i)}
-              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium text-slate-100"
+              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium text-primary"
               aria-expanded={isOpen}
             >
               {item.q}
               <span
-                className={`shrink-0 font-mono text-emerald-400 transition-transform ${isOpen ? "rotate-45" : ""}`}
+                className={`shrink-0 font-mono text-accent-hover transition-transform ${isOpen ? "rotate-45" : ""}`}
               >
                 +
               </span>
             </button>
             {isOpen && (
-              <div className="px-5 pb-4 text-sm leading-relaxed text-slate-400">{item.a}</div>
+              <div className="px-5 pb-4 text-sm leading-relaxed text-muted">{item.a}</div>
             )}
           </div>
         );

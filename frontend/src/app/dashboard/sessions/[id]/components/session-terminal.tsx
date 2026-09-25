@@ -41,7 +41,7 @@ export function SessionTerminal({
       convertEol: true,
       fontSize: 13,
       fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-      theme: { background: "#0a0c12" },
+      theme: { background: "#0d1321" },
     });
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);

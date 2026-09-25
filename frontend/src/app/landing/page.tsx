@@ -198,10 +198,10 @@ function Icon({ name, className }: { name: string; className?: string }) {
 
 export default function LandingPage() {
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#05060a] text-slate-100">
+    <div className="relative min-h-screen overflow-x-hidden app-shell-bg text-primary">
       {/* Background layers */}
       <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_-10%,rgba(0,255,180,0.15),transparent_45%),radial-gradient(circle_at_85%_10%,rgba(124,58,237,0.18),transparent_40%),radial-gradient(circle_at_50%_100%,rgba(0,200,255,0.10),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_-10%,rgba(59,130,246,0.15),transparent_45%),radial-gradient(circle_at_85%_10%,rgba(167,139,250,0.18),transparent_40%),radial-gradient(circle_at_50%_100%,rgba(56,189,248,0.10),transparent_50%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_0%,black_40%,transparent_100%)]" />
       </div>
 
@@ -224,33 +224,33 @@ export default function LandingPage() {
 
 function Nav() {
   return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-[#05060a]/70 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-default app-shell-bg/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-400/30 bg-emerald-400/10 font-mono text-sm text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.35)]">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-accent/30 bg-accent-subtle font-mono text-sm text-accent-hover">
             &gt;_
           </div>
-          <span className="font-mono text-sm font-semibold tracking-tight text-slate-100">
-            termina<span className="text-emerald-400">.ai</span>
+          <span className="font-mono text-sm font-semibold tracking-tight text-primary">
+            termina<span className="text-accent-hover">.ai</span>
           </span>
         </div>
-        <nav className="hidden items-center gap-8 text-sm text-slate-300 md:flex">
-          <a href="#features" className="transition hover:text-emerald-300">Features</a>
-          <a href="#how-it-works" className="transition hover:text-emerald-300">How it works</a>
-          <a href="#use-cases" className="transition hover:text-emerald-300">Use cases</a>
-          <a href="#security" className="transition hover:text-emerald-300">Security</a>
-          <a href="#testimonials" className="transition hover:text-emerald-300">Testimonials</a>
+        <nav className="hidden items-center gap-8 text-sm text-secondary md:flex">
+          <a href="#features" className="transition hover:text-accent-hover">Features</a>
+          <a href="#how-it-works" className="transition hover:text-accent-hover">How it works</a>
+          <a href="#use-cases" className="transition hover:text-accent-hover">Use cases</a>
+          <a href="#security" className="transition hover:text-accent-hover">Security</a>
+          <a href="#testimonials" className="transition hover:text-accent-hover">Testimonials</a>
         </nav>
         <div className="flex items-center gap-3">
           <a
             href="/login"
-            className="hidden text-sm text-slate-300 transition hover:text-white sm:block"
+            className="hidden text-sm text-secondary transition hover:text-primary sm:block"
           >
             Sign in
           </a>
           <a
             href="/register"
-            className="rounded-lg border border-emerald-400/40 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.25)] transition hover:bg-emerald-400/20"
+            className="rounded-lg border border-accent/40 bg-accent-subtle px-4 py-2 text-sm font-medium text-accent-hover transition hover:bg-[rgb(59_130_246_/_0.2)]"
           >
             Get Started
           </a>
@@ -264,22 +264,22 @@ function Hero() {
   return (
     <section className="relative mx-auto max-w-7xl px-6 pt-20 pb-24 sm:pt-28">
       <div className="mx-auto max-w-3xl text-center">
-        <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs text-slate-300 backdrop-blur">
+        <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-default panel-bg px-4 py-1.5 text-xs text-secondary backdrop-blur">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
           </span>
           Now shipping v2.0 — smarter planning, faster execution
         </div>
 
         <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-6xl">
           Command Your Workflow
-          <span className="block bg-gradient-to-r from-emerald-300 via-cyan-300 to-violet-400 bg-clip-text text-transparent">
+          <span className="block bg-gradient-to-r from-accent via-accent-hover to-ai bg-clip-text text-transparent">
             with AI
           </span>
         </h1>
 
-        <p className="mx-auto mt-6 max-w-xl text-balance text-lg text-slate-400">
+        <p className="mx-auto mt-6 max-w-xl text-balance text-lg text-muted">
           Your AI terminal companion. Describe what you need in plain English —
           it plans, executes, and verifies real commands across your codebase.
         </p>
@@ -287,14 +287,14 @@ function Hero() {
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <a
             href="/register"
-            className="group relative inline-flex items-center justify-center rounded-lg bg-emerald-400 px-6 py-3 text-sm font-semibold text-black shadow-[0_0_30px_rgba(16,185,129,0.45)] transition hover:bg-emerald-300"
+            className="group relative inline-flex items-center justify-center rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-primary transition hover:bg-accent-hover"
           >
             Get Started
             <span className="ml-2 transition group-hover:translate-x-0.5">→</span>
           </a>
           <a
             href="#terminal-demo"
-            className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-200 backdrop-blur transition hover:border-white/30 hover:bg-white/10"
+            className="inline-flex items-center justify-center rounded-lg border border-default panel-bg px-6 py-3 text-sm font-semibold text-secondary backdrop-blur transition hover:border-strong hover:panel-bg-strong"
           >
             View Demo
           </a>
@@ -302,7 +302,7 @@ function Hero() {
       </div>
 
       <div id="terminal-demo" className="relative mx-auto mt-16 max-w-4xl">
-        <div className="absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-r from-emerald-500/20 via-cyan-500/10 to-violet-500/20 blur-2xl" />
+        <div className="absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-r from-accent/20 via-accent-hover/10 to-ai/20 blur-2xl" />
         <TerminalMockup />
       </div>
     </section>
@@ -312,12 +312,12 @@ function Hero() {
 function LogoStrip() {
   const items = ["macOS", "Linux", "WSL", "Docker", "GitHub", "VS Code"];
   return (
-    <section className="border-y border-white/5 bg-white/[0.02] py-8">
+    <section className="border-y border-default panel-bg-soft py-8">
       <div className="mx-auto max-w-7xl px-6">
-        <p className="mb-6 text-center text-xs uppercase tracking-widest text-slate-500">
+        <p className="mb-6 text-center text-xs uppercase tracking-widest text-faint">
           Works everywhere developers already are
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-sm font-medium text-slate-400">
+        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-sm font-medium text-muted">
           {items.map((item) => (
             <span key={item} className="font-mono">{item}</span>
           ))}
@@ -338,9 +338,9 @@ function SectionHeading({
 }) {
   return (
     <div className="mx-auto max-w-2xl text-center">
-      <p className="mb-3 font-mono text-xs uppercase tracking-widest text-emerald-400">{eyebrow}</p>
+      <p className="mb-3 font-mono text-xs uppercase tracking-widest text-accent-hover">{eyebrow}</p>
       <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
-      {desc && <p className="mt-4 text-balance text-slate-400">{desc}</p>}
+      {desc && <p className="mt-4 text-balance text-muted">{desc}</p>}
     </div>
   );
 }
@@ -357,16 +357,16 @@ function Features() {
         {FEATURES.map((f, i) => (
           <div
             key={f.title}
-            className={`group relative rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl transition hover:border-emerald-400/30 hover:bg-white/[0.05] ${
+            className={`group relative rounded-2xl border border-default panel-bg p-6 backdrop-blur-xl transition hover:border-accent/30 hover:panel-bg-strong ${
               i === 4 ? "sm:col-span-2 lg:col-span-1" : ""
             }`}
           >
             <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition group-hover:opacity-100" style={{ boxShadow: "0 0 40px rgba(16,185,129,0.15) inset" }} />
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-400/30 bg-emerald-400/10 text-emerald-300">
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-accent/30 bg-accent-subtle text-accent-hover">
               <Icon name={f.icon} />
             </div>
-            <h3 className="font-semibold text-slate-100">{f.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-slate-400">{f.desc}</p>
+            <h3 className="font-semibold text-primary">{f.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{f.desc}</p>
           </div>
         ))}
       </div>
@@ -376,7 +376,7 @@ function Features() {
 
 function HowItWorks() {
   return (
-    <section id="how-it-works" className="relative border-y border-white/5 bg-white/[0.015] py-24">
+    <section id="how-it-works" className="relative border-y border-default panel-bg-soft py-24">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
           eyebrow="How It Works"
@@ -386,13 +386,13 @@ function HowItWorks() {
         <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((s, i) => (
             <div key={s.step} className="relative">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl">
-                <span className="font-mono text-3xl font-bold text-emerald-400/40">{s.step}</span>
-                <h3 className="mt-3 font-semibold text-slate-100">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-400">{s.desc}</p>
+              <div className="rounded-2xl border border-default panel-bg p-6 backdrop-blur-xl">
+                <span className="font-mono text-3xl font-bold text-accent-hover/40">{s.step}</span>
+                <h3 className="mt-3 font-semibold text-primary">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{s.desc}</p>
               </div>
               {i < STEPS.length - 1 && (
-                <div className="absolute -right-3 top-1/2 hidden -translate-y-1/2 text-emerald-400/50 lg:block">→</div>
+                <div className="absolute -right-3 top-1/2 hidden -translate-y-1/2 text-accent/50 lg:block">→</div>
               )}
             </div>
           ))}
@@ -414,13 +414,13 @@ function WhyChoose() {
         {WHY.map((w) => (
           <div
             key={w.label}
-            className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-6 text-center backdrop-blur-xl"
+            className="rounded-2xl border border-default panel-bg-strong p-6 text-center backdrop-blur-xl"
           >
-            <div className="bg-gradient-to-r from-emerald-300 to-cyan-300 bg-clip-text font-mono text-4xl font-bold text-transparent">
+            <div className="bg-gradient-to-r from-accent-hover to-accent bg-clip-text font-mono text-4xl font-bold text-transparent">
               {w.value}
             </div>
-            <div className="mt-2 text-sm font-semibold text-slate-200">{w.label}</div>
-            <p className="mt-1 text-xs leading-relaxed text-slate-500">{w.desc}</p>
+            <div className="mt-2 text-sm font-semibold text-secondary">{w.label}</div>
+            <p className="mt-1 text-xs leading-relaxed text-faint">{w.desc}</p>
           </div>
         ))}
       </div>
@@ -430,7 +430,7 @@ function WhyChoose() {
 
 function UseCases() {
   return (
-    <section id="use-cases" className="relative border-y border-white/5 bg-white/[0.015] py-24">
+    <section id="use-cases" className="relative border-y border-default panel-bg-soft py-24">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
           eyebrow="Supported Use Cases"
@@ -441,10 +441,10 @@ function UseCases() {
           {USE_CASES.map((u) => (
             <div
               key={u.title}
-              className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl transition hover:border-cyan-400/30"
+              className="rounded-2xl border border-default panel-bg p-5 backdrop-blur-xl transition hover:border-accent-hover/30"
             >
-              <h3 className="font-mono text-sm font-semibold text-cyan-300">{u.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-400">{u.desc}</p>
+              <h3 className="font-mono text-sm font-semibold text-accent-hover">{u.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{u.desc}</p>
             </div>
           ))}
         </div>
@@ -465,13 +465,13 @@ function Security() {
         {SECURITY.map((s) => (
           <div
             key={s.title}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl transition hover:border-violet-400/30"
+            className="rounded-2xl border border-default panel-bg p-6 backdrop-blur-xl transition hover:border-ai/30"
           >
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-violet-400/30 bg-violet-400/10 text-violet-300">
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-ai/30 bg-ai-subtle text-ai">
               <Icon name={s.icon} />
             </div>
-            <h3 className="font-semibold text-slate-100">{s.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-slate-400">{s.desc}</p>
+            <h3 className="font-semibold text-primary">{s.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{s.desc}</p>
           </div>
         ))}
       </div>
@@ -481,7 +481,7 @@ function Security() {
 
 function Integrations() {
   return (
-    <section className="relative border-y border-white/5 bg-white/[0.015] py-24">
+    <section className="relative border-y border-default panel-bg-soft py-24">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
           eyebrow="Integrations"
@@ -492,7 +492,7 @@ function Integrations() {
           {INTEGRATIONS.map((name) => (
             <div
               key={name}
-              className="flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-4 py-5 font-mono text-sm text-slate-300 backdrop-blur-xl transition hover:border-cyan-400/30 hover:text-cyan-300"
+              className="flex items-center justify-center rounded-xl border border-default panel-bg px-4 py-5 font-mono text-sm text-secondary backdrop-blur-xl transition hover:border-accent-hover/30 hover:text-accent-hover"
             >
               {name}
             </div>
@@ -525,17 +525,17 @@ function Testimonials() {
         {TESTIMONIALS.map((t) => (
           <div
             key={t.name}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl"
+            className="rounded-2xl border border-default panel-bg p-6 backdrop-blur-xl"
           >
-            <p className="font-mono text-emerald-400">&ldquo;</p>
-            <p className="text-sm leading-relaxed text-slate-300">{t.quote}</p>
+            <p className="font-mono text-accent-hover">&ldquo;</p>
+            <p className="text-sm leading-relaxed text-secondary">{t.quote}</p>
             <div className="mt-5 flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 font-mono text-xs text-slate-300">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-default panel-bg font-mono text-xs text-secondary">
                 {t.name.split(" ").map((n) => n[0]).join("")}
               </div>
               <div>
-                <div className="text-sm font-medium text-slate-100">{t.name}</div>
-                <div className="text-xs text-slate-500">{t.role}</div>
+                <div className="text-sm font-medium text-primary">{t.name}</div>
+                <div className="text-xs text-faint">{t.role}</div>
               </div>
             </div>
           </div>
@@ -548,22 +548,22 @@ function Testimonials() {
 function FinalCta() {
   return (
     <section className="mx-auto max-w-5xl px-6 py-24">
-      <div className="relative overflow-hidden rounded-3xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 via-white/[0.03] to-violet-500/10 p-10 text-center backdrop-blur-xl sm:p-16">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(16,185,129,0.2),transparent_60%)]" />
+      <div className="relative overflow-hidden rounded-3xl border border-accent/20 bg-accent-subtle p-10 text-center backdrop-blur-xl sm:p-16">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.2),transparent_60%)]" />
         <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
           Your terminal, upgraded.
         </h2>
-        <p className="mx-auto mt-4 max-w-md text-balance text-slate-400">
+        <p className="mx-auto mt-4 max-w-md text-balance text-muted">
           Install the agent in under a minute and start commanding your workflow with AI.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <a
             href="/register"
-            className="inline-flex items-center justify-center rounded-lg bg-emerald-400 px-6 py-3 text-sm font-semibold text-black shadow-[0_0_30px_rgba(16,185,129,0.45)] transition hover:bg-emerald-300"
+            className="inline-flex items-center justify-center rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-primary transition hover:bg-accent-hover"
           >
             Get Started Free
           </a>
-          <code className="rounded-lg border border-white/15 bg-black/40 px-4 py-3 font-mono text-sm text-emerald-300">
+          <code className="rounded-lg border border-default panel-bg-strong px-4 py-3 font-mono text-sm text-accent-hover">
             npx termina init
           </code>
         </div>
@@ -574,10 +574,10 @@ function FinalCta() {
 
 function Footer() {
   return (
-    <footer className="border-t border-white/5 py-10">
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 text-sm text-slate-500 sm:flex-row">
+    <footer className="border-t border-default py-10">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 text-sm text-faint sm:flex-row">
         <div className="flex items-center gap-2 font-mono">
-          <span className="text-emerald-400">&gt;_</span> termina.ai
+          <span className="text-accent-hover">&gt;_</span> termina.ai
         </div>
         <p>© {new Date().getFullYear()} termina.ai — All rights reserved.</p>
       </div>

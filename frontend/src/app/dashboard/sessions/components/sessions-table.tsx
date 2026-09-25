@@ -18,9 +18,9 @@ interface SessionRow {
 }
 
 const STATUS_STYLES: Record<SessionStatus, string> = {
-  RUNNING: "border-cyan-400/30 bg-cyan-400/10 text-cyan-300",
-  COMPLETED: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
-  FAILED: "border-red-400/30 bg-red-400/10 text-red-300",
+  RUNNING: "border-accent-hover/30 bg-accent-subtle text-accent-hover",
+  COMPLETED: "border-success/30 bg-success-subtle text-success",
+  FAILED: "border-error/30 bg-error-subtle text-error",
 };
 
 function formatDuration(seconds: number | null): string {
@@ -74,7 +74,7 @@ export function SessionsTable({ initialItems }: { initialItems: SessionRow[] }) 
     <>
       {confirmingId && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[rgb(7_11_20_/_0.7)] p-4 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-labelledby="delete-session-title"
@@ -99,7 +99,7 @@ export function SessionsTable({ initialItems }: { initialItems: SessionRow[] }) 
               <button
                 type="button"
                 onClick={handleConfirmDelete}
-                className="flex-1 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-2 text-sm font-medium text-red-300 transition hover:bg-red-400/20"
+                className="flex-1 rounded-lg border border-error/30 bg-error-subtle px-4 py-2 text-sm font-medium text-error transition hover:bg-[rgb(251_113_133_/_0.2)]"
               >
                 Delete
               </button>
@@ -132,7 +132,7 @@ export function SessionsTable({ initialItems }: { initialItems: SessionRow[] }) 
                 <td className="px-5 py-3.5">
                   <Link
                     href={`/dashboard/sessions/${session.id}`}
-                    className="font-medium text-secondary hover:text-emerald-300"
+                    className="font-medium text-secondary hover:text-accent-hover"
                   >
                     {session.goal}
                   </Link>
@@ -162,7 +162,7 @@ export function SessionsTable({ initialItems }: { initialItems: SessionRow[] }) 
                     disabled={pendingId === session.id}
                     aria-label="Delete session"
                     title="Delete session"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-default px-2.5 py-1.5 text-xs font-medium text-muted transition hover:border-red-400/30 hover:bg-red-400/10 hover:text-red-300 disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-default px-2.5 py-1.5 text-xs font-medium text-muted transition hover:border-error/30 hover:bg-error-subtle hover:text-error disabled:opacity-50"
                   >
                     <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5">
                       <path

@@ -35,12 +35,12 @@ export function IntegrationActions({
         className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition disabled:opacity-50 ${
           isConnected
             ? "border-default panel-bg text-tertiary hover:border-strong"
-            : "border-emerald-400/30 bg-emerald-400/10 text-emerald-300 hover:bg-emerald-400/20"
+            : "border-accent/30 bg-accent-subtle text-accent-hover hover:bg-[rgb(59_130_246_/_0.2)]"
         }`}
       >
         {pending ? "Working…" : isConnected ? "Disconnect" : "Connect"}
       </button>
-      {error && <p className="text-xs text-red-300">{error}</p>}
+      {error && <p className="text-xs text-error">{error}</p>}
     </div>
   );
 }

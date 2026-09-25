@@ -54,7 +54,7 @@ export function UserMenu({ user }: { user: User }) {
           <p className="text-sm font-medium text-secondary">{displayName}</p>
           <p className="text-xs text-faint">{roleLabel}</p>
         </div>
-        <div className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-400/10 font-mono text-sm font-semibold text-emerald-300">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full border border-accent/30 bg-accent-subtle font-mono text-sm font-semibold text-accent-hover">
           {initials}
         </div>
       </button>
@@ -91,7 +91,7 @@ export function UserMenu({ user }: { user: User }) {
               <button
                 type="submit"
                 role="menuitem"
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-red-300 transition hover:bg-red-400/10"
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-error transition hover:bg-error-subtle"
               >
                 Log out
               </button>

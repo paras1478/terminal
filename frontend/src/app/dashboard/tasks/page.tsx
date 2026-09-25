@@ -7,17 +7,17 @@ export const metadata: Metadata = {
 };
 
 const STATUS_STYLES: Record<TaskStatus, string> = {
-  QUEUED: "border-slate-400/30 bg-slate-400/10 text-tertiary",
-  RUNNING: "border-cyan-400/30 bg-cyan-400/10 text-cyan-300",
-  COMPLETED: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
-  FAILED: "border-red-400/30 bg-red-400/10 text-red-300",
+  QUEUED: "border-default panel-bg-strong text-tertiary",
+  RUNNING: "border-accent-hover/30 bg-accent-subtle text-accent-hover",
+  COMPLETED: "border-success/30 bg-success-subtle text-success",
+  FAILED: "border-error/30 bg-error-subtle text-error",
 };
 
 const PRIORITY_STYLES: Record<TaskPriority, string> = {
-  LOW: "border-slate-400/30 bg-slate-400/10 text-tertiary",
-  MEDIUM: "border-cyan-400/30 bg-cyan-400/10 text-cyan-300",
-  HIGH: "border-amber-400/30 bg-amber-400/10 text-amber-300",
-  URGENT: "border-red-400/30 bg-red-400/10 text-red-300",
+  LOW: "border-default panel-bg-strong text-tertiary",
+  MEDIUM: "border-accent-hover/30 bg-accent-subtle text-accent-hover",
+  HIGH: "border-warning/30 bg-warning-subtle text-warning",
+  URGENT: "border-error/30 bg-error-subtle text-error",
 };
 
 export default async function TasksPage() {
@@ -39,7 +39,7 @@ export default async function TasksPage() {
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-red-400/20 bg-red-400/5 p-5 text-sm text-red-300">
+        <div className="rounded-2xl border border-error/20 bg-error-subtle p-5 text-sm text-error">
           {error}
         </div>
       )}

@@ -24,7 +24,7 @@ export default async function WorkspacesPage() {
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-red-400/20 bg-red-400/5 p-5 text-sm text-red-300">
+        <div className="rounded-2xl border border-error/20 bg-error-subtle p-5 text-sm text-error">
           {error}
         </div>
       )}
@@ -43,7 +43,7 @@ export default async function WorkspacesPage() {
             className="rounded-2xl border border-default panel-bg p-5 backdrop-blur-xl transition hover:border-strong"
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-default bg-white/5 font-mono text-xs text-tertiary">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-default panel-bg-strong font-mono text-xs text-tertiary">
                 {w.name.slice(0, 2).toUpperCase()}
               </div>
               <div>

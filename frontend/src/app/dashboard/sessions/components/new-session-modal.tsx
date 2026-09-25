@@ -38,7 +38,7 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgb(7_11_20_/_0.7)] p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="new-session-title"
@@ -69,7 +69,7 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
           {state.error && (
             <p
               role="alert"
-              className="rounded-lg border border-red-400/20 bg-red-400/5 px-3 py-2 text-sm text-red-300"
+              className="rounded-lg border border-error/20 bg-error-subtle px-3 py-2 text-sm text-error"
             >
               {state.error}
             </p>
@@ -88,13 +88,13 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
                 value={selectedPath}
                 onChange={(e) => setSelectedPath(e.target.value)}
                 placeholder="C:\Users\you\projects\my-app"
-                className="w-full rounded-lg border border-default panel-bg px-3 py-2 font-mono text-sm text-secondary outline-none focus:border-emerald-400/40"
+                className="w-full rounded-lg border border-default panel-bg px-3 py-2 font-mono text-sm text-secondary outline-none focus:border-accent-hover"
               />
               {isElectron && (
                 <button
                   type="button"
                   onClick={handleSelectFolder}
-                  className="shrink-0 rounded-lg border border-default panel-bg px-3 py-2 text-sm font-medium text-secondary transition hover:border-emerald-400/40 hover:panel-bg-strong"
+                  className="shrink-0 rounded-lg border border-default panel-bg px-3 py-2 text-sm font-medium text-secondary transition hover:border-accent-hover hover:panel-bg-strong"
                 >
                   Browse…
                 </button>
@@ -105,10 +105,10 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
               Enter the absolute path to a project folder already on this machine.
             </p>
 
-            {folderError && <p className="mt-1 text-xs text-red-300">{folderError}</p>}
+            {folderError && <p className="mt-1 text-xs text-error">{folderError}</p>}
 
             {state.fieldErrors?.path && (
-              <p className="mt-1 text-xs text-red-300">{state.fieldErrors.path[0]}</p>
+              <p className="mt-1 text-xs text-error">{state.fieldErrors.path[0]}</p>
             )}
           </div>
 
@@ -122,7 +122,7 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
               type="text"
               maxLength={200}
               placeholder="my-app"
-              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
             />
           </div>
 
@@ -137,10 +137,10 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
               maxLength={500}
               rows={3}
               placeholder="Fix the failing checkout tests"
-              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
             />
             {state.fieldErrors?.goal && (
-              <p className="mt-1 text-xs text-red-300">{state.fieldErrors.goal[0]}</p>
+              <p className="mt-1 text-xs text-error">{state.fieldErrors.goal[0]}</p>
             )}
           </div>
 
@@ -152,7 +152,7 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
               id="agentType"
               name="agentType"
               defaultValue="FULL_STACK"
-              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+              className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
             >
               <option value="FRONTEND">Frontend</option>
               <option value="BACKEND">Backend</option>
@@ -172,7 +172,7 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
             <button
               type="submit"
               disabled={pending || !selectedPath}
-              className="flex-1 rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-300 transition hover:bg-emerald-400/20 disabled:opacity-50"
+              className="flex-1 rounded-lg border border-accent/30 bg-accent-subtle px-4 py-2 text-sm font-medium text-accent-hover transition hover:bg-[rgb(59_130_246_/_0.2)] disabled:opacity-50"
             >
               {pending ? "Creating…" : "Create Session"}
             </button>

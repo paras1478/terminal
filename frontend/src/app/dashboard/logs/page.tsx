@@ -58,12 +58,12 @@ export default async function LogsPage({
           name="q"
           defaultValue={params.q ?? ""}
           placeholder="Search commands…"
-          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40 sm:col-span-2"
+          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover sm:col-span-2"
         />
         <select
           name="status"
           defaultValue={params.status ?? ""}
-          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
         >
           <option value="">Any status</option>
           <option value="success">Success</option>
@@ -72,7 +72,7 @@ export default async function LogsPage({
         <select
           name="workspaceId"
           defaultValue={params.workspaceId ?? ""}
-          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
         >
           <option value="">Any workspace</option>
           {workspaces.map((w) => (
@@ -83,7 +83,7 @@ export default async function LogsPage({
         </select>
         <button
           type="submit"
-          className="rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-sm font-medium text-emerald-300 hover:bg-emerald-400/20"
+          className="rounded-lg border border-accent/30 bg-accent-subtle px-3 py-2 text-sm font-medium text-accent-hover hover:bg-[rgb(59_130_246_/_0.2)]"
         >
           Filter
         </button>
@@ -91,18 +91,18 @@ export default async function LogsPage({
           type="datetime-local"
           name="from"
           defaultValue={params.from ?? ""}
-          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40 sm:col-span-2"
+          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover sm:col-span-2"
         />
         <input
           type="datetime-local"
           name="to"
           defaultValue={params.to ?? ""}
-          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40 sm:col-span-2"
+          className="rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover sm:col-span-2"
         />
       </form>
 
       {error && (
-        <div className="rounded-2xl border border-red-400/20 bg-red-400/5 p-5 text-sm text-red-300">
+        <div className="rounded-2xl border border-error/20 bg-error-subtle p-5 text-sm text-error">
           {error}
         </div>
       )}
@@ -131,7 +131,7 @@ export default async function LogsPage({
                     <td className="px-5 py-3.5">
                       <Link
                         href={`/dashboard/logs/${log.id}`}
-                        className="block font-mono text-secondary hover:text-emerald-300"
+                        className="block font-mono text-secondary hover:text-accent-hover"
                       >
                         {log.command}
                       </Link>
@@ -144,8 +144,8 @@ export default async function LogsPage({
                       <span
                         className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${
                           log.exitStatus === 0
-                            ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                            : "border-red-400/30 bg-red-400/10 text-red-300"
+                            ? "border-success/30 bg-success-subtle text-success"
+                            : "border-error/30 bg-error-subtle text-error"
                         }`}
                       >
                         {log.exitStatus}

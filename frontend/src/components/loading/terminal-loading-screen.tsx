@@ -60,16 +60,16 @@ export function TerminalLoadingScreen({
     <div className="app-shell-bg fixed inset-0 z-[200] flex items-center justify-center overflow-hidden text-primary">
       {/* Subtle code/editor background texture — same grid used on the dashboard shell */}
       <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_-10%,rgba(0,255,180,0.10),transparent_45%),radial-gradient(circle_at_90%_0%,rgba(124,58,237,0.12),transparent_40%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_-10%,rgba(59,130,246,0.10),transparent_45%),radial-gradient(circle_at_90%_0%,rgba(167,139,250,0.12),transparent_40%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:44px_44px]" />
       </div>
 
       <div className="w-full max-w-md px-4 sm:max-w-lg">
         <div className="overflow-hidden rounded-2xl border border-default surface-bg shadow-2xl">
           <div className="flex items-center gap-2 border-b border-default px-4 py-3">
-            <span className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-400/70" />
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
+            <span className="h-2.5 w-2.5 rounded-full bg-error/70" />
+            <span className="h-2.5 w-2.5 rounded-full bg-warning/70" />
+            <span className="h-2.5 w-2.5 rounded-full bg-success/70" />
             <span className="ml-2 font-mono text-xs tracking-widest text-faint">{title}</span>
           </div>
 
@@ -89,14 +89,14 @@ export function TerminalLoadingScreen({
                     reduceMotion ? "" : "animate-[terminal-line-in_0.25s_ease-out]"
                   }`}
                 >
-                  <span className={isError ? "text-red-400" : "text-secondary"}>
-                    <span className="text-emerald-400">{">"}</span> {step.label}
+                  <span className={isError ? "text-error" : "text-secondary"}>
+                    <span className="text-accent-hover">{">"}</span> {step.label}
                     {isActive && !reduceMotion && (
-                      <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-[terminal-cursor-blink_1s_step-end_infinite] bg-emerald-400 align-middle" />
+                      <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-[terminal-cursor-blink_1s_step-end_infinite] bg-accent-hover align-middle" />
                     )}
                   </span>
-                  {isDone && !isError && <span className="text-emerald-400">✓</span>}
-                  {isError && <span className="text-red-400">✕</span>}
+                  {isDone && !isError && <span className="text-success">✓</span>}
+                  {isError && <span className="text-error">✕</span>}
                 </div>
               );
             })}
@@ -106,8 +106,8 @@ export function TerminalLoadingScreen({
                 <div
                   className={`h-full rounded-full ${
                     status === "error"
-                      ? "bg-red-400/70"
-                      : "bg-gradient-to-r from-emerald-400 to-cyan-400"
+                      ? "bg-error/70"
+                      : "bg-accent-hover"
                   } ${reduceMotion ? "" : "transition-[width] duration-300 ease-out"}`}
                   style={{ width: `${progressPct}%` }}
                 />
@@ -117,12 +117,12 @@ export function TerminalLoadingScreen({
 
             {status === "error" && (
               <div className="mt-3 space-y-3 border-t border-subtle pt-3">
-                <p className="text-xs text-red-300">{errorMessage ?? "Something went wrong."}</p>
+                <p className="text-xs text-error">{errorMessage ?? "Something went wrong."}</p>
                 {onRetry && (
                   <button
                     type="button"
                     onClick={onRetry}
-                    className="w-full rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-xs font-medium text-emerald-300 transition hover:bg-emerald-400/20"
+                    className="w-full rounded-lg border border-accent/30 bg-accent-subtle px-4 py-2 text-xs font-medium text-accent-hover transition hover:bg-[rgb(59_130_246_/_0.2)]"
                   >
                     Retry
                   </button>
@@ -130,7 +130,7 @@ export function TerminalLoadingScreen({
               </div>
             )}
 
-            {status === "done" && <p className="pt-1 text-emerald-300">Ready.</p>}
+            {status === "done" && <p className="pt-1 text-success">Ready.</p>}
           </div>
         </div>
       </div>

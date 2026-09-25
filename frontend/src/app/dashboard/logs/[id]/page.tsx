@@ -25,13 +25,13 @@ export default async function LogDetailPage({
   return (
     <>
       <div>
-        <Link href="/dashboard/logs" className="text-xs font-medium text-emerald-300 hover:text-emerald-200">
+        <Link href="/dashboard/logs" className="text-xs font-medium text-accent-hover hover:text-accent">
           ← Back to logs
         </Link>
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-red-400/20 bg-red-400/5 p-5 text-sm text-red-300">
+        <div className="rounded-2xl border border-error/20 bg-error-subtle p-5 text-sm text-error">
           {error}
         </div>
       )}
@@ -46,8 +46,8 @@ export default async function LogDetailPage({
             <span
               className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium ${
                 log.exitStatus === 0
-                  ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                  : "border-red-400/30 bg-red-400/10 text-red-300"
+                  ? "border-success/30 bg-success-subtle text-success"
+                  : "border-error/30 bg-error-subtle text-error"
               }`}
             >
               exit {log.exitStatus}
@@ -63,7 +63,7 @@ export default async function LogDetailPage({
               <p className="text-xs text-faint">Session</p>
               <p className="mt-1 text-sm text-secondary">
                 {log.sessionId ? (
-                  <Link href={`/dashboard/sessions/${log.sessionId}`} className="text-emerald-300 hover:text-emerald-200">
+                  <Link href={`/dashboard/sessions/${log.sessionId}`} className="text-accent-hover hover:text-accent">
                     {log.sessionId}
                   </Link>
                 ) : (

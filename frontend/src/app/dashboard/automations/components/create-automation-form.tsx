@@ -12,7 +12,7 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
   return (
     <form action={formAction} className="space-y-4">
       {state.error && (
-        <p role="alert" className="rounded-lg border border-red-400/20 bg-red-400/5 px-3 py-2 text-sm text-red-300">
+        <p role="alert" className="rounded-lg border border-error/20 bg-error-subtle px-3 py-2 text-sm text-error">
           {state.error}
         </p>
       )}
@@ -27,9 +27,9 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
           type="text"
           required
           maxLength={150}
-          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
         />
-        {state.fieldErrors?.name && <p className="mt-1 text-xs text-red-300">{state.fieldErrors.name[0]}</p>}
+        {state.fieldErrors?.name && <p className="mt-1 text-xs text-error">{state.fieldErrors.name[0]}</p>}
       </div>
 
       <div>
@@ -42,10 +42,10 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
           required
           maxLength={1000}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
         />
         {state.fieldErrors?.description && (
-          <p className="mt-1 text-xs text-red-300">{state.fieldErrors.description[0]}</p>
+          <p className="mt-1 text-xs text-error">{state.fieldErrors.description[0]}</p>
         )}
       </div>
 
@@ -59,10 +59,10 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
           type="text"
           required
           maxLength={500}
-          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
         />
         {state.fieldErrors?.taskGoal && (
-          <p className="mt-1 text-xs text-red-300">{state.fieldErrors.taskGoal[0]}</p>
+          <p className="mt-1 text-xs text-error">{state.fieldErrors.taskGoal[0]}</p>
         )}
       </div>
 
@@ -74,7 +74,7 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
           id="workspaceId"
           name="workspaceId"
           required
-          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
         >
           <option value="">Select a workspace</option>
           {workspaces.map((w) => (
@@ -84,7 +84,7 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
           ))}
         </select>
         {state.fieldErrors?.workspaceId && (
-          <p className="mt-1 text-xs text-red-300">{state.fieldErrors.workspaceId[0]}</p>
+          <p className="mt-1 text-xs text-error">{state.fieldErrors.workspaceId[0]}</p>
         )}
       </div>
 
@@ -99,10 +99,10 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
           required
           placeholder="0 2 * * *"
           maxLength={100}
-          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-emerald-400/40"
+          className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
         />
         {state.fieldErrors?.schedule && (
-          <p className="mt-1 text-xs text-red-300">{state.fieldErrors.schedule[0]}</p>
+          <p className="mt-1 text-xs text-error">{state.fieldErrors.schedule[0]}</p>
         )}
       </div>
 
@@ -119,7 +119,7 @@ export function CreateAutomationForm({ workspaces }: { workspaces: Workspace[] }
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-300 transition hover:bg-emerald-400/20 disabled:opacity-50"
+        className="w-full rounded-lg border border-accent/30 bg-accent-subtle px-4 py-2 text-sm font-medium text-accent-hover transition hover:bg-[rgb(59_130_246_/_0.2)] disabled:opacity-50"
       >
         {pending ? "Creating…" : "Create Automation"}
       </button>

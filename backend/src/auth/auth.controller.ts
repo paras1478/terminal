@@ -13,7 +13,13 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
-import { ApiBearerAuth, ApiExcludeEndpoint, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiExcludeEndpoint,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -27,6 +33,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { OAuthProfile } from './strategies/oauth-profile.type';
 import type { JwtPayload } from './types/jwt-payload.type';
 import { PrismaService } from '../prisma/prisma.service';
+import { OAuthAccountDeletedException } from './errors/oauth-account-deleted.exception';
 
 // Frontend origins this backend is allowed to redirect an OAuth login back
 // to. FRONTEND_URL is the explicit, dedicated source of truth for this — it
@@ -58,7 +65,8 @@ export class AuthController {
   }
 
   private get allowedReturnOrigins(): string[] {
-    const extra = this.configService.get<string>('ADDITIONAL_OAUTH_RETURN_ORIGINS') ?? '';
+    const extra =
+      this.configService.get<string>('ADDITIONAL_OAUTH_RETURN_ORIGINS') ?? '';
     const origins = extra
       .split(',')
       .map((o) => o.trim())
@@ -68,7 +76,10 @@ export class AuthController {
 
   /** Validates a `state`-carried return origin against the allowlist, falling back to frontendOrigin. */
   private resolveReturnOrigin(stateOrigin: unknown): string {
-    if (typeof stateOrigin === 'string' && this.allowedReturnOrigins.includes(stateOrigin)) {
+    if (
+      typeof stateOrigin === 'string' &&
+      this.allowedReturnOrigins.includes(stateOrigin)
+    ) {
       return stateOrigin;
     }
     return this.frontendOrigin;
@@ -86,16 +97,28 @@ export class AuthController {
     this.logger.log(`[oauth] callback reached, returnOrigin=${returnOrigin}`);
 
     if (!profile) {
-      this.logger.warn('[oauth] Passport guard produced no profile — Google auth itself did not complete');
+      this.logger.warn(
+        '[oauth] Passport guard produced no profile — Google auth itself did not complete',
+      );
       res.redirect(`${returnOrigin}/login?error=oauth_failed`);
       return;
     }
     try {
       const code = await this.authService.loginWithOAuth(profile);
-      res.redirect(`${returnOrigin}/auth/callback?code=${encodeURIComponent(code)}`);
+      res.redirect(
+        `${returnOrigin}/auth/callback?code=${encodeURIComponent(code)}`,
+      );
     } catch (err) {
+      if (err instanceof OAuthAccountDeletedException) {
+        this.logger.warn('[oauth] redirectWithOAuthResult: account_deleted');
+        res.redirect(`${returnOrigin}/login?error=account_deleted`);
+        return;
+      }
       const error = err as Error;
-      this.logger.error(`[oauth] redirectWithOAuthResult failed: ${error.name}: ${error.message}`, error.stack);
+      this.logger.error(
+        `[oauth] redirectWithOAuthResult failed: ${error.name}: ${error.message}`,
+        error.stack,
+      );
       res.redirect(`${returnOrigin}/login?error=oauth_failed`);
     }
   }
@@ -137,17 +160,23 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Return the currently authenticated user, verified against the database',
+    summary:
+      'Return the currently authenticated user, verified against the database',
   })
   @ApiResponse({ status: 200, type: UserResponseDto })
-  @ApiResponse({ status: 401, description: 'Token invalid, expired, or the account no longer exists' })
+  @ApiResponse({
+    status: 401,
+    description: 'Token invalid, expired, or the account no longer exists',
+  })
   async me(@CurrentUser() payload: JwtPayload): Promise<UserResponseDto> {
     // JwtAuthGuard (via JwtStrategy.validate) already confirms this user still
     // exists in the database before this handler ever runs — a deleted
     // account's token is rejected with 401 there. This is the endpoint the
     // frontend calls to perform that real, backend-validated check on every
     // dashboard load, rather than trusting the client-readable `user` cookie.
-    const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
     if (!user) {
       throw new UnauthorizedException('This account no longer exists.');
     }
@@ -171,7 +200,14 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   @ApiExcludeEndpoint()
-  async googleCallback(@Req() req: Request, @Res() res: Response): Promise<void> {
-    await this.redirectWithOAuthResult(req, res, req.user as OAuthProfile | undefined);
+  async googleCallback(
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<void> {
+    await this.redirectWithOAuthResult(
+      req,
+      res,
+      req.user as OAuthProfile | undefined,
+    );
   }
 }

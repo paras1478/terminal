@@ -15,7 +15,7 @@ export function SubmitButton({ children, pendingText }: SubmitButtonProps) {
       type="submit"
       disabled={pending}
       aria-busy={pending}
-      className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+      className="w-full rounded-md bg-accent px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-accent-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-hover disabled:cursor-not-allowed disabled:bg-[color:var(--border-default)] disabled:text-muted disabled:opacity-100"
     >
       {pending ? pendingText : children}
     </button>

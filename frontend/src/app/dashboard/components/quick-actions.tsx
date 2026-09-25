@@ -1,13 +1,13 @@
 const ACTIONS = [
-  { label: "Run Command", desc: "Execute a natural language task", icon: "play", accent: "emerald" },
-  { label: "Create Task", desc: "Queue a new automation", icon: "plus", accent: "cyan" },
-  { label: "Open Session", desc: "Resume or start a terminal session", icon: "terminal", accent: "violet" },
+  { label: "Run Command", desc: "Execute a natural language task", icon: "play", accent: "accent" },
+  { label: "Create Task", desc: "Queue a new automation", icon: "plus", accent: "success" },
+  { label: "Open Session", desc: "Resume or start a terminal session", icon: "terminal", accent: "ai" },
 ];
 
 const ACCENTS: Record<string, { text: string; bg: string; ring: string; hover: string }> = {
-  emerald: { text: "text-emerald-300", bg: "bg-emerald-400/10", ring: "border-emerald-400/25", hover: "hover:border-emerald-400/50" },
-  cyan: { text: "text-cyan-300", bg: "bg-cyan-400/10", ring: "border-cyan-400/25", hover: "hover:border-cyan-400/50" },
-  violet: { text: "text-violet-300", bg: "bg-violet-400/10", ring: "border-violet-400/25", hover: "hover:border-violet-400/50" },
+  accent: { text: "text-accent-hover", bg: "bg-accent-subtle", ring: "border-accent/25", hover: "hover:border-accent/50" },
+  success: { text: "text-success", bg: "bg-success-subtle", ring: "border-success/25", hover: "hover:border-success/50" },
+  ai: { text: "text-ai", bg: "bg-ai-subtle", ring: "border-ai/25", hover: "hover:border-ai/50" },
 };
 
 function ActionIcon({ name }: { name: string }) {

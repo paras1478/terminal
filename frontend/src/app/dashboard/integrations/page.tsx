@@ -24,7 +24,7 @@ export default async function IntegrationsPage() {
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-red-400/20 bg-red-400/5 p-5 text-sm text-red-300">
+        <div className="rounded-2xl border border-error/20 bg-error-subtle p-5 text-sm text-error">
           {error}
         </div>
       )}
@@ -49,8 +49,8 @@ export default async function IntegrationsPage() {
               <span
                 className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${
                   integration.status === "CONNECTED"
-                    ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                    : "border-slate-400/30 bg-slate-400/10 text-muted"
+                    ? "border-success/30 bg-success-subtle text-success"
+                    : "border-default panel-bg-strong text-muted"
                 }`}
               >
                 {integration.status === "CONNECTED" ? "Connected" : "Not connected"}
