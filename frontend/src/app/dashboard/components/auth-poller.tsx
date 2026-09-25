@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { fetchCurrentUser, ApiError } from "@/lib/api/auth";
 import { clearSessionAction } from "@/lib/auth/actions";
 
@@ -21,7 +20,6 @@ const POLL_INTERVAL_MS = 60_000;
  * routes and never on /login.
  */
 export function AuthPoller({ accessToken }: { accessToken: string }) {
-  const router = useRouter();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -35,22 +33,40 @@ export function AuthPoller({ accessToken }: { accessToken: string }) {
     let cancelled = false;
 
     const checkAuth = async () => {
+      // TEMPORARY debug logging for the "poller doesn't redirect after
+      // MongoDB user deletion" investigation. Remove once confirmed fixed.
+      console.log("[AUTH POLL] request start", new Date().toISOString());
       try {
         await fetchCurrentUser(accessToken);
+        console.log("[AUTH POLL] response 200 — still authenticated");
         // 200: session still valid — nothing to do. (currentUser itself
         // isn't held in client state anywhere in this app; the server
         // components re-fetch it on navigation, so there's nothing to
         // update here beyond confirming the session is still good.)
       } catch (err) {
-        if (cancelled) return;
+        if (cancelled) {
+          console.log("[AUTH POLL] error received after unmount — ignoring");
+          return;
+        }
+        const status = err instanceof ApiError ? err.status : "unknown";
+        console.log("[AUTH POLL] response error, status:", status, err);
         if (err instanceof ApiError && err.status === 401) {
+          console.log("[AUTH POLL] 401 — clearing session and redirecting to /login");
           if (intervalRef.current !== null) {
             clearInterval(intervalRef.current);
             intervalRef.current = null;
           }
           await clearSessionAction();
+          console.log("[AUTH POLL] session cookies cleared");
           if (!cancelled) {
-            router.replace("/login");
+            // A full browser navigation (not router.replace()) on purpose:
+            // this guarantees the /login request the browser makes carries
+            // whatever cookie state the browser actually has at that exact
+            // moment, and that proxy.ts's middleware evaluates it fresh —
+            // no dependency on Next.js's client-side Router Cache having
+            // picked up the Server Action's cookie deletion in time.
+            console.log("[AUTH POLL] navigating to /login (full reload)");
+            window.location.href = "/login";
           }
         }
         // Non-401 errors (e.g. a transient network blip) are ignored here —
@@ -60,16 +76,18 @@ export function AuthPoller({ accessToken }: { accessToken: string }) {
       }
     };
 
+    console.log("[AUTH POLL] START — interval created, will run every", POLL_INTERVAL_MS, "ms");
     intervalRef.current = setInterval(checkAuth, POLL_INTERVAL_MS);
 
     return () => {
       cancelled = true;
+      console.log("[AUTH POLL] cleanup — clearing interval (unmount or deps changed)");
       if (intervalRef.current !== null) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
-  }, [accessToken, router]);
+  }, [accessToken]);
 
   return null;
 }
