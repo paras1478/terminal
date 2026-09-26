@@ -1,13 +1,14 @@
 @import "tailwindcss";
 
 /*
- * Theme tokens: terminal-inspired dark design system. The app is dark-first
- * by design (see COLOR SYSTEM in project docs) — data-theme="light" resolves
- * to the same palette so the existing theme preference setting (persisted in
- * UserSettings.theme) keeps working without visually forking the UI.
+ * Theme tokens: terminal-inspired design system. Dark (:root, the app's
+ * default) is the primary/reference palette — see COLOR SYSTEM in project
+ * docs. :root[data-theme="light"] below is a distinct light palette built
+ * from the same structure and semantic accent hues, so the existing
+ * ThemeProvider/theme-preference toggle (persisted in UserSettings.theme)
+ * produces a real, readable light UI instead of silently staying dark.
  */
-:root,
-:root[data-theme="light"] {
+:root {
   --background: #070b14;
   --foreground: #e6edf7;
 
@@ -40,6 +41,43 @@
   --color-warning: #fbbf24;
   --color-error: #fb7185;
   --color-ai: #a78bfa;
+}
+
+:root[data-theme="light"] {
+  --background: #f7f8fb;
+  --foreground: #101828;
+
+  /* Surface hierarchy — mirrors dark's app-bg < surface/panel < card/sidebar
+     progression, just inverted from near-black to near-white. */
+  --app-bg: #f7f8fb;
+  --surface-bg: #ffffff;
+  --panel-bg: #ffffff;
+  --panel-bg-soft: #ffffff;
+  --panel-bg-strong: #eef1f6;
+  --panel-bg-hover: #e6eaf2;
+  --card-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+
+  /* Borders */
+  --border-subtle: #e7eaf0;
+  --border-default: #dbe0ea;
+  --border-strong: #c3cbda;
+
+  /* Text */
+  --text-primary: #101828;
+  --text-secondary: #46536b;
+  --text-tertiary: #46536b;
+  --text-muted: #5b6880;
+  --text-faint: #68748a;
+
+  /* Semantic accents — same hues as dark for brand/meaning consistency,
+     darkened where needed to hold 4.5:1+ contrast on white (verified). */
+  --color-accent: #2563eb;
+  --color-accent-hover: #0369a1;
+  --color-success: #047857;
+  --color-warning: #b45309;
+  --color-error: #e11d48;
+  --color-ai: #7c3aed;
 }
 
 @theme inline {

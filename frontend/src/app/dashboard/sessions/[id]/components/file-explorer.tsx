@@ -156,14 +156,46 @@ function TreeNode({
   );
 }
 
+/**
+ * Recursively loads the full tree via the Electron local-fs bridge. The
+ * bridge's readDirectory only returns one level at a time (mirrors the
+ * backend FilesService's own per-directory readdir), so this walks it the
+ * same way FilesService.buildNode does server-side.
+ */
+async function loadLocalTree(root: string, relPath: string): Promise<FileNode> {
+  const bridge = window.desktopBridge;
+  if (!bridge) throw new Error("Local desktop access is required.");
+
+  const result = await bridge.readDirectory(root, relPath);
+  if (!result.ok || !result.node) {
+    throw new Error(result.error ?? "Unable to access this folder.");
+  }
+
+  const node = result.node;
+  if (node.type !== "directory" || !node.children) {
+    return node;
+  }
+
+  const children = await Promise.all(
+    node.children.map((child) =>
+      child.type === "directory" ? loadLocalTree(root, child.path) : Promise.resolve(child),
+    ),
+  );
+  return { ...node, children };
+}
+
 export function FileExplorer({
   sessionId,
   accessToken,
+  workspacePath,
+  isDesktop,
   onSelectFile,
   selectedPath,
 }: {
   sessionId: string;
   accessToken: string;
+  workspacePath: string;
+  isDesktop: boolean;
   onSelectFile: (path: string) => void;
   selectedPath: string | null;
 }) {
@@ -176,7 +208,9 @@ export function FileExplorer({
   const loadTree = useCallback(async () => {
     setLoading(true);
     try {
-      const tree = await getSessionFileTreeClient(sessionId, accessToken);
+      const tree = isDesktop
+        ? await loadLocalTree(workspacePath, ".")
+        : await getSessionFileTreeClient(sessionId, accessToken);
       setRoot(tree);
       setError(null);
     } catch (err) {
@@ -184,13 +218,19 @@ export function FileExplorer({
     } finally {
       setLoading(false);
     }
-  }, [sessionId, accessToken]);
+  }, [sessionId, accessToken, workspacePath, isDesktop]);
 
   useEffect(() => {
     loadTree();
   }, [loadTree]);
 
   useEffect(() => {
+    // The Render-backed live file watcher (chokidar over /files) only makes
+    // sense for the backend's own on-disk view. In desktop mode the local
+    // filesystem is read directly through Electron IPC instead, so there is
+    // no separate watcher — Refresh reloads the real tree on demand.
+    if (isDesktop) return;
+
     const socket = io(`${env.NEXT_PUBLIC_API_URL}/files`, {
       auth: { token: accessToken },
       query: { sessionId },
@@ -222,7 +262,7 @@ export function FileExplorer({
     return () => {
       socket.disconnect();
     };
-  }, [sessionId, accessToken]);
+  }, [sessionId, accessToken, isDesktop]);
 
   function toggle(path: string) {
     setExpanded((prev) => {

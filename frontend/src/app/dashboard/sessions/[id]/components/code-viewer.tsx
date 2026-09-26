@@ -25,10 +25,14 @@ export function CodeViewer({
   sessionId,
   path,
   accessToken,
+  workspacePath,
+  isDesktop,
 }: {
   sessionId: string;
   path: string | null;
   accessToken: string;
+  workspacePath: string;
+  isDesktop: boolean;
 }) {
   const [content, setContent] = useState("");
   const [truncated, setTruncated] = useState(false);
@@ -44,7 +48,18 @@ export function CodeViewer({
     setError(null);
     setDirty(false);
 
-    getSessionFileContentClient(sessionId, path, accessToken)
+    const load = async () => {
+      if (isDesktop) {
+        const bridge = window.desktopBridge;
+        if (!bridge) throw new Error("Local desktop access is required.");
+        const result = await bridge.readFile(workspacePath, path);
+        if (!result.ok) throw new Error(result.error ?? "Unable to read this file.");
+        return { content: result.content ?? "", truncated: result.truncated ?? false };
+      }
+      return getSessionFileContentClient(sessionId, path, accessToken);
+    };
+
+    load()
       .then((res) => {
         if (cancelled) return;
         setContent(res.content);
@@ -61,13 +76,20 @@ export function CodeViewer({
     return () => {
       cancelled = true;
     };
-  }, [sessionId, path, accessToken]);
+  }, [sessionId, path, accessToken, workspacePath, isDesktop]);
 
   async function handleSave() {
     if (!path) return;
     setSaving(true);
     try {
-      await saveSessionFileContentClient(sessionId, path, content, accessToken);
+      if (isDesktop) {
+        const bridge = window.desktopBridge;
+        if (!bridge) throw new Error("Local desktop access is required.");
+        const result = await bridge.writeFile(workspacePath, path, content);
+        if (!result.ok) throw new Error(result.error ?? "Unable to save this file.");
+      } else {
+        await saveSessionFileContentClient(sessionId, path, content, accessToken);
+      }
       setDirty(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save file.");

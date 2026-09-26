@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FileExplorer } from "./file-explorer";
 import { CodeViewer } from "./code-viewer";
 import { SessionTerminal } from "./session-terminal";
@@ -21,8 +21,61 @@ export function SessionWorkspace({
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"editor" | "terminal">("terminal");
   const [explorerWidth, setExplorerWidth] = useState(DEFAULT_EXPLORER_WIDTH);
+  const [isDesktop, setIsDesktop] = useState(false);
+  // Session persistence: this session's original workspacePath is checked
+  // against the real local filesystem on mount (see below). If it's gone
+  // (deleted/renamed/moved externally), the user can pick a replacement
+  // folder for this browser tab's lifetime only — there is no backend
+  // endpoint to update a session's stored path, and adding one is out of
+  // scope here; this override is intentionally client-side and not
+  // persisted across reloads.
+  const [effectiveWorkspacePath, setEffectiveWorkspacePath] = useState(workspacePath);
+  const [workspaceMissing, setWorkspaceMissing] = useState(false);
+  const [checkingWorkspace, setCheckingWorkspace] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const resizing = useRef(false);
+
+  useEffect(() => {
+    setIsDesktop(typeof window !== "undefined" && window.desktopBridge?.isDesktop === true);
+  }, []);
+
+  useEffect(() => {
+    setEffectiveWorkspacePath(workspacePath);
+  }, [workspacePath]);
+
+  useEffect(() => {
+    const bridge = window.desktopBridge;
+    if (!bridge?.isDesktop) {
+      setCheckingWorkspace(false);
+      return;
+    }
+    let cancelled = false;
+    setCheckingWorkspace(true);
+    bridge
+      .validateFolder(effectiveWorkspacePath)
+      .then((result) => {
+        if (cancelled) return;
+        setWorkspaceMissing(!result.ok);
+      })
+      .finally(() => {
+        if (!cancelled) setCheckingWorkspace(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [effectiveWorkspacePath]);
+
+  async function handleSelectAnotherFolder() {
+    const bridge = window.desktopBridge;
+    if (!bridge) return;
+    const picked = await bridge.selectFolder();
+    if (picked.canceled || !picked.path) return;
+    const validation = await bridge.validateFolder(picked.path);
+    if (validation.ok && validation.path) {
+      setEffectiveWorkspacePath(validation.path);
+      setWorkspaceMissing(false);
+    }
+  }
 
   const handleSelectFile = useCallback((path: string) => {
     setSelectedPath(path);
@@ -53,6 +106,24 @@ export function SessionWorkspace({
     window.addEventListener("pointerup", onUp);
   }, []);
 
+  if (isDesktop && !checkingWorkspace && workspaceMissing) {
+    return (
+      <div className="flex h-[560px] flex-col items-center justify-center gap-3 rounded-2xl border border-warning/20 bg-warning-subtle p-6 text-center">
+        <p className="text-sm font-medium text-warning">
+          Workspace folder is no longer available.
+        </p>
+        <p className="max-w-sm text-xs text-muted">{effectiveWorkspacePath}</p>
+        <button
+          type="button"
+          onClick={handleSelectAnotherFolder}
+          className="rounded-lg border border-accent/30 bg-accent-subtle px-4 py-2 text-sm font-medium text-accent-hover transition hover:bg-[rgb(59_130_246_/_0.2)]"
+        >
+          Select Another Folder
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={containerRef}
@@ -62,6 +133,8 @@ export function SessionWorkspace({
         <FileExplorer
           sessionId={sessionId}
           accessToken={accessToken}
+          workspacePath={effectiveWorkspacePath}
+          isDesktop={isDesktop}
           onSelectFile={handleSelectFile}
           selectedPath={selectedPath}
         />
@@ -101,12 +174,18 @@ export function SessionWorkspace({
 
         <div className="min-h-0 flex-1">
           <div className={activeTab === "editor" ? "h-full" : "hidden"}>
-            <CodeViewer sessionId={sessionId} path={selectedPath} accessToken={accessToken} />
+            <CodeViewer
+              sessionId={sessionId}
+              path={selectedPath}
+              accessToken={accessToken}
+              workspacePath={effectiveWorkspacePath}
+              isDesktop={isDesktop}
+            />
           </div>
           <div className={activeTab === "terminal" ? "h-full" : "hidden"}>
             <SessionTerminal
               sessionId={sessionId}
-              workspacePath={workspacePath}
+              workspacePath={effectiveWorkspacePath}
               accessToken={accessToken}
             />
           </div>

@@ -2,7 +2,11 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("desktopBridge", {
   isElectron: true,
+  isDesktop: true,
+
   selectFolder: () => ipcRenderer.invoke("dialog:select-folder"),
+  validateFolder: (candidatePath) =>
+    ipcRenderer.invoke("dialog:validate-folder", candidatePath),
   showNotification: (title, body) =>
     ipcRenderer.invoke("notification:show", { title, body }),
 
@@ -25,4 +29,20 @@ contextBridge.exposeInMainWorld("desktopBridge", {
     ipcRenderer.on("terminal:exit", listener);
     return () => ipcRenderer.removeListener("terminal:exit", listener);
   },
+
+  // Local filesystem, scoped to a workspace root passed on every call and
+  // re-validated in the main process each time (see main.js's
+  // resolveWithinRoot) — the renderer never gets direct fs access, only
+  // these narrow, root-relative operations.
+  readDirectory: (root, relPath) =>
+    ipcRenderer.invoke("fs:read-directory", { root, relPath }),
+  readFile: (root, relPath) => ipcRenderer.invoke("fs:read-file", { root, relPath }),
+  writeFile: (root, relPath, content) =>
+    ipcRenderer.invoke("fs:write-file", { root, relPath, content }),
+  createFile: (root, relPath) => ipcRenderer.invoke("fs:create-file", { root, relPath }),
+  createDirectory: (root, relPath) =>
+    ipcRenderer.invoke("fs:create-directory", { root, relPath }),
+  deletePath: (root, relPath) => ipcRenderer.invoke("fs:delete-path", { root, relPath }),
+  renamePath: (root, relPath, newRelPath) =>
+    ipcRenderer.invoke("fs:rename-path", { root, relPath, newRelPath }),
 });

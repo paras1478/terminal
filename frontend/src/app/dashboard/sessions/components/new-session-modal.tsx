@@ -6,15 +6,23 @@ import { createSessionAction, type ActionResult } from "@/lib/dashboard/actions"
 
 const initialState: ActionResult = { error: null, fieldErrors: {} };
 
+function basenameOf(fullPath: string): string {
+  const trimmed = fullPath.replace(/[\\/]+$/, "");
+  const segments = trimmed.split(/[\\/]/);
+  return segments[segments.length - 1] || trimmed;
+}
+
 export function NewSessionModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState(createSessionAction, initialState);
   const [selectedPath, setSelectedPath] = useState("");
-  const [isElectron, setIsElectron] = useState(false);
+  const [workspaceName, setWorkspaceName] = useState("");
+  const [isDesktop, setIsDesktop] = useState(false);
   const [folderError, setFolderError] = useState<string | null>(null);
+  const [pickerBusy, setPickerBusy] = useState(false);
 
   useEffect(() => {
-    setIsElectron(typeof window !== "undefined" && window.desktopBridge?.isElectron === true);
+    setIsDesktop(typeof window !== "undefined" && window.desktopBridge?.isDesktop === true);
   }, []);
 
   useEffect(() => {
@@ -26,13 +34,28 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
 
   async function handleSelectFolder() {
     setFolderError(null);
+    setPickerBusy(true);
     try {
-      const folder = await window.desktopBridge?.selectFolder();
-      if (folder) {
-        setSelectedPath(folder);
+      const bridge = window.desktopBridge;
+      if (!bridge) return;
+
+      const picked = await bridge.selectFolder();
+      if (picked.canceled || !picked.path) {
+        return;
       }
+
+      const validation = await bridge.validateFolder(picked.path);
+      if (!validation.ok || !validation.path) {
+        setFolderError(validation.error ?? "Selected folder does not exist.");
+        return;
+      }
+
+      setSelectedPath(validation.path);
+      setWorkspaceName((prev) => prev || basenameOf(validation.path!));
     } catch {
       setFolderError("Unable to open the folder picker. Please try again.");
+    } finally {
+      setPickerBusy(false);
     }
   }
 
@@ -80,30 +103,51 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
               Project location
             </label>
 
-            <div className="mt-1 flex gap-2">
-              <input
-                id="path"
-                name="path"
-                type="text"
-                value={selectedPath}
-                onChange={(e) => setSelectedPath(e.target.value)}
-                placeholder="C:\Users\you\projects\my-app"
-                className="w-full rounded-lg border border-default panel-bg px-3 py-2 font-mono text-sm text-secondary outline-none focus:border-accent-hover"
-              />
-              {isElectron && (
-                <button
-                  type="button"
-                  onClick={handleSelectFolder}
-                  className="shrink-0 rounded-lg border border-default panel-bg px-3 py-2 text-sm font-medium text-secondary transition hover:border-accent-hover hover:panel-bg-strong"
-                >
-                  Browse…
-                </button>
-              )}
-            </div>
-
-            <p className="mt-1 text-xs text-faint">
-              Enter the absolute path to a project folder already on this machine.
-            </p>
+            {isDesktop ? (
+              <>
+                <div className="mt-1 flex gap-2">
+                  <input
+                    id="path"
+                    name="path"
+                    type="text"
+                    value={selectedPath}
+                    readOnly
+                    placeholder="No folder selected"
+                    className="w-full cursor-not-allowed rounded-lg border border-default panel-bg px-3 py-2 font-mono text-sm text-secondary outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSelectFolder}
+                    disabled={pickerBusy}
+                    className="flex shrink-0 items-center gap-1.5 rounded-lg border border-default panel-bg px-3 py-2 text-sm font-medium text-secondary transition hover:border-accent-hover hover:panel-bg-strong disabled:opacity-50"
+                  >
+                    <span aria-hidden="true">📁</span>
+                    {pickerBusy ? "Selecting folder…" : "Select Folder"}
+                  </button>
+                </div>
+                <p className="mt-1 text-xs text-faint">
+                  Choose a folder on this computer. Only a real, accessible directory can be
+                  used — you cannot type a path or command here.
+                </p>
+              </>
+            ) : (
+              <>
+                <input
+                  id="path"
+                  name="path"
+                  type="text"
+                  value={selectedPath}
+                  onChange={(e) => setSelectedPath(e.target.value)}
+                  placeholder="C:\Users\you\projects\my-app"
+                  className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 font-mono text-sm text-secondary outline-none focus:border-accent-hover"
+                />
+                <p className="mt-1 rounded-lg border border-warning/20 bg-warning-subtle px-3 py-2 text-xs text-warning">
+                  Local folder access (native picker, Explorer, terminal) is available in the
+                  Desktop app. In the browser, this path is only usable if the backend server
+                  itself can already see it on disk.
+                </p>
+              </>
+            )}
 
             {folderError && <p className="mt-1 text-xs text-error">{folderError}</p>}
 
@@ -121,6 +165,8 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
               name="name"
               type="text"
               maxLength={200}
+              value={workspaceName}
+              onChange={(e) => setWorkspaceName(e.target.value)}
               placeholder="my-app"
               className="mt-1 w-full rounded-lg border border-default panel-bg px-3 py-2 text-sm text-secondary outline-none focus:border-accent-hover"
             />
@@ -171,10 +217,10 @@ export function NewSessionModal({ onClose }: { onClose: () => void }) {
             </button>
             <button
               type="submit"
-              disabled={pending || !selectedPath}
+              disabled={pending || (isDesktop && !selectedPath)}
               className="flex-1 rounded-lg border border-accent/30 bg-accent-subtle px-4 py-2 text-sm font-medium text-accent-hover transition hover:bg-[rgb(59_130_246_/_0.2)] disabled:opacity-50"
             >
-              {pending ? "Creating…" : "Create Session"}
+              {pending ? "Creating session…" : "Create Session"}
             </button>
           </div>
         </form>
